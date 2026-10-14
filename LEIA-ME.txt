@@ -1,0 +1,27 @@
+VETOR TCC — versão 4
+Autocuidado em pequenos passos
+
+O QUE MUDOU
+- Mantém a base visual e os recursos existentes do Vetor TCC.
+- Navegação em seis módulos: Hoje, Acalmar, Práticas, Pensamentos, Áudios e Progresso.
+- Práticas cotidianas por contexto, favoritos, práticas personalizadas, gatilhos e histórico.
+- Biblioteca de áudio vazia por categoria; sem arquivos fictícios, botões de reprodução, TTS ou narração.
+- Registro de pensamentos em três etapas, com salvamento automático de rascunho e retomada.
+- Revisão semanal opcional, sem pontuação ou sequência de dias.
+- Backup e restauração incluem os novos dados.
+
+PUBLICAR E INSTALAR NO ANDROID
+1. Extraia este ZIP.
+2. Publique o conteúdo desta pasta em um endereço HTTPS (por exemplo, publicação manual no Netlify); index.html deve ficar na raiz.
+3. Abra o endereço no Chrome do Android.
+4. No menu, selecione “Instalar app” ou “Adicionar à tela inicial”, conforme disponível.
+5. O service worker usa cache versão 4 e pode disponibilizar os arquivos do app offline após a primeira abertura bem-sucedida.
+
+DADOS E PRIVACIDADE
+- Os dados permanecem no armazenamento local do navegador/origem; não há conta, servidor, sincronização ou chamadas externas para enviar os registros.
+- Atualizar a interface mantendo a mesma origem e a chave local preserva os registros existentes. Ainda assim, faça backup antes de atualizar.
+- O backup JSON inclui check-ins, ações, pensamentos, rascunhos, práticas favoritas/personalizadas e histórico. A restauração substitui os dados atuais; faça backup antes.
+- Os dados locais não são criptografados por este app. Proteja o aparelho e os backups. Limpar os dados do navegador ou trocar de aparelho pode tornar os registros inacessíveis.
+
+SEGURANÇA
+O aplicativo é uma ferramenta de autocuidado e não substitui psicoterapia, avaliação médica ou tratamento prescrito. Não altere medicamentos por conta própria. Interrompa qualquer técnica que aumente o desconforto. Não atribua automaticamente falta de ar nova, intensa ou diferente do habitual à ansiedade. Em emergência no Brasil, ligue 192 ou procure atendimento presencial.

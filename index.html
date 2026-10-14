@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f7f6f2">
+  <meta name="description" content="Ferramentas simples de autocuidado, ativação comportamental, respiração e registro de pensamentos.">
+  <title>Vetor — autocuidado em pequenos passos</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f6f2;
+      --paper: #ffffff;
+      --ink: #23302d;
+      --muted: #687570;
+      --line: #e5e9e4;
+      --green: #376c5c;
+      --green-dark: #285347;
+      --green-soft: #eaf3ed;
+      --lilac: #eeebf8;
+      --lilac-ink: #63548c;
+      --sand: #f7efe1;
+      --sand-ink: #8d6536;
+      --red-soft: #fff0ed;
+      --red-ink: #8e4438;
+      --shadow: 0 8px 28px rgba(32, 48, 42, .055);
+      --radius: 22px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+    }
+    button, input, textarea, select { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, summary:focus-visible {
+      outline: 3px solid #9ac7b4; outline-offset: 2px;
+    }
+    .app { max-width: 680px; min-height: 100vh; margin: 0 auto; padding-bottom: calc(142px + env(safe-area-inset-bottom)); }
+    .topbar { padding: 18px 20px 8px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 850; letter-spacing: -.04em; font-size: 1.2rem; }
+    .brand-mark { height: 36px; width: 36px; border-radius: 13px; display: grid; place-items: center; background: var(--green); color: white; font-weight: 900; letter-spacing: -.08em; }
+    .date-pill { color: var(--muted); background: #eeeee8; padding: 7px 11px; border-radius: 999px; font-size: .78rem; font-weight: 750; }
+    main { padding: 6px 16px 20px; }
+    .screen { display: none; animation: appear .18s ease-out; }
+    .screen.active { display: block; }
+    @keyframes appear { from { opacity: .4; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .intro { padding: 16px 4px 19px; }
+    .eyebrow { color: var(--green); font-size: .74rem; font-weight: 850; letter-spacing: .105em; text-transform: uppercase; }
+    h1 { font-size: clamp(1.65rem, 6vw, 2.25rem); line-height: 1.12; letter-spacing: -.055em; margin: 8px 0 9px; }
+    h2 { font-size: 1.04rem; margin: 0; line-height: 1.3; letter-spacing: -.018em; }
+    h3 { font-size: .94rem; margin: 0 0 7px; }
+    p { margin: 0; }
+    .sub { font-size: .91rem; color: var(--muted); max-width: 49ch; }
+    .stack { display: grid; gap: 14px; }
+    .card { background: var(--paper); border: 1px solid rgba(224, 230, 222, .9); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+    .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+    .card-head p { color: var(--muted); font-size: .83rem; margin-top: 4px; }
+    .tag { font-size: .72rem; font-weight: 800; color: var(--green-dark); background: var(--green-soft); border-radius: 999px; padding: 6px 9px; white-space: nowrap; }
+    .feature { background: #e8f1e9; border-color: #dae8dc; }
+    .feature .eyebrow { color: var(--green-dark); }
+    .feature h2 { font-size: 1.22rem; margin: 6px 0 7px; }
+    .feature p { max-width: 48ch; color: #53645a; font-size: .9rem; }
+    .feature-icon { height: 42px; width: 42px; border-radius: 15px; display: grid; place-items: center; font-size: 1.25rem; background: rgba(255,255,255,.68); flex: 0 0 auto; }
+    .btn { border: 0; min-height: 48px; border-radius: 15px; padding: 12px 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 800; font-size: .9rem; transition: transform .12s ease, opacity .12s ease; }
+    .btn:active { transform: scale(.985); }
+    .btn-primary { background: var(--green); color: #fff; }
+    .btn-primary:hover { background: var(--green-dark); }
+    .btn-soft { background: var(--green-soft); color: var(--green-dark); }
+    .btn-plain { background: #f1f2ee; color: var(--ink); }
+    .btn-danger { background: var(--red-soft); color: var(--red-ink); }
+    .btn-full { width: 100%; }
+    .btn-small { min-height: 38px; padding: 8px 11px; border-radius: 12px; font-size: .8rem; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .field { display: grid; gap: 7px; margin: 12px 0; }
+    label, .field-label { font-weight: 750; font-size: .85rem; }
+    .hint { color: var(--muted); font-size: .78rem; }
+    input[type="text"], input[type="search"], textarea, select {
+      width: 100%; background: #fbfcfa; border: 1px solid #dfe6df; color: var(--ink); border-radius: 14px; padding: 12px 13px; min-height: 47px;
+    }
+    textarea { min-height: 82px; resize: vertical; }
+    input::placeholder, textarea::placeholder { color: #929b95; }
+    input[type="range"] { width: 100%; accent-color: var(--green); height: 26px; }
+    .range-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: .85rem; font-weight: 750; }
+    .range-value { min-width: 38px; text-align: center; background: #f0f2ed; padding: 4px 8px; border-radius: 9px; font-size: .8rem; }
+    .scale-note { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: .72rem; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .micro { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .micro-btn { text-align: left; min-height: 82px; border: 1px solid var(--line); border-radius: 15px; padding: 12px; background: #fafbf8; color: var(--ink); display: flex; flex-direction: column; justify-content: space-between; gap: 10px; font-weight: 800; font-size: .82rem; }
+    .micro-btn .micro-emoji { font-size: 1.23rem; }
+    .micro-btn.selected { border-color: var(--green); background: var(--green-soft); }
+    .timer { font-size: 2.7rem; font-weight: 850; letter-spacing: -.07em; text-align: center; font-variant-numeric: tabular-nums; padding: 7px 0 11px; color: var(--green-dark); }
+    .timer-caption { color: var(--muted); text-align: center; font-size: .8rem; margin-top: -7px; margin-bottom: 7px; }
+    .rating-box { padding: 12px; border-radius: 15px; background: #f8f9f5; border: 1px solid #edf0e9; }
+    .habit-list { display: grid; gap: 9px; }
+    .habit { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border: 1px solid var(--line); border-radius: 14px; background: #fff; font-size: .83rem; font-weight: 700; }
+    .habit input { width: 19px; height: 19px; accent-color: var(--green); flex: 0 0 auto; }
+    .habit.checked { background: #f2f7f1; border-color: #d6e5d5; }
+    .section-label { color: var(--muted); font-weight: 850; font-size: .73rem; letter-spacing: .08em; text-transform: uppercase; margin: 4px 0 9px; }
+    .list { display: grid; gap: 9px; }
+    .list-item { border: 1px solid var(--line); border-radius: 15px; padding: 12px; background: #fcfdfa; }
+    .list-item-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+    .list-item strong { font-size: .84rem; }
+    .list-item p { color: var(--muted); font-size: .78rem; margin-top: 5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .list-item time { color: var(--muted); font-size: .72rem; white-space: nowrap; }
+    .empty { text-align: center; color: var(--muted); font-size: .84rem; border: 1px dashed #dce4dc; padding: 17px 12px; border-radius: 15px; background: #fbfcf9; }
+    .breath-layout { text-align: center; padding: 9px 0 6px; }
+    .breath-circle { width: 176px; height: 176px; margin: 9px auto 19px; border-radius: 50%; display: grid; place-items: center; padding: 18px; background: #e8f2ec; border: 1px solid #cfe2d5; color: var(--green-dark); transform: scale(.92); transition: transform 5s linear, background 2s ease; }
+    .breath-circle.inhale { transform: scale(1.07); background: #d9ebdf; transition: transform 5s linear, background 2s ease; }
+    .breath-circle.exhale { transform: scale(.88); background: #edf5ef; transition: transform 5s linear, background 3s ease; }
+    .breath-instruction { font-weight: 850; font-size: 1rem; }
+    .breath-sub { font-size: .76rem; color: var(--muted); margin-top: 5px; }
+    .sense-step { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-bottom: 1px solid var(--line); }
+    .sense-step:last-child { border-bottom: 0; }
+    .sense-num { flex: 0 0 33px; height: 33px; display: grid; place-items: center; border-radius: 11px; background: var(--lilac); color: var(--lilac-ink); font-weight: 850; }
+    .sense-step strong { display: block; font-size: .85rem; margin-bottom: 2px; }
+    .sense-step span { display: block; font-size: .79rem; color: var(--muted); }
+    .notice { background: #fbf2e5; color: #75552e; border: 1px solid #f0e0c4; border-radius: 15px; padding: 13px; font-size: .8rem; }
+    .notice strong { display: block; margin-bottom: 4px; }
+    details { border: 1px solid var(--line); border-radius: 15px; padding: 13px; background: #fcfdfa; }
+    details + details { margin-top: 9px; }
+    summary { cursor: pointer; font-size: .85rem; font-weight: 800; }
+    details p, details ul { color: var(--muted); font-size: .8rem; margin-top: 10px; }
+    details li { margin: 6px 0; }
+    a { color: var(--green-dark); text-underline-offset: 3px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .stat { padding: 14px; background: #f7f8f4; border: 1px solid var(--line); border-radius: 16px; }
+    .stat strong { display: block; font-size: 1.45rem; letter-spacing: -.05em; }
+    .stat span { display: block; color: var(--muted); font-size: .75rem; margin-top: 2px; }
+    .week-chart { display: grid; gap: 8px; }
+    .week-row { display: grid; grid-template-columns: 54px 1fr 28px; gap: 8px; align-items: center; font-size: .75rem; color: var(--muted); }
+    .bar-track { background: #edf0e9; border-radius: 999px; height: 9px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 999px; background: #74a18a; min-width: 2px; }
+    .bottom-nav { position: fixed; z-index: 20; bottom: 0; left: 50%; transform: translateX(-50%); width: min(100%, 680px); padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); background: rgba(250,250,247,.97); backdrop-filter: blur(14px); border-top: 1px solid #e2e6df; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, minmax(42px, auto)); gap: 3px; }
+    .nav-btn { border: 0; background: transparent; color: #7a8580; border-radius: 11px; display: flex; flex-direction: row; gap: 6px; align-items: center; justify-content: center; min-height: 42px; padding: 5px 3px; font-size: .69rem; font-weight: 800; }
+    .nav-btn .nav-icon { font-size: 1rem; line-height: 1.2; }
+    .nav-btn.active { background: #e7f0e8; color: var(--green-dark); }
+    .toast { position: fixed; left: 50%; bottom: calc(87px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 40; padding: 11px 16px; border-radius: 999px; background: #263b32; color: white; box-shadow: 0 7px 25px rgba(0,0,0,.17); font-size: .82rem; font-weight: 750; width: max-content; max-width: calc(100% - 32px); display: none; text-align: center; }
+    .storage-warning { display: none; margin: 4px 0 13px; padding: 10px 12px; border-radius: 12px; color: #7b522a; background: #fff2dc; font-size: .78rem; }
+    .footer-note { color: var(--muted); font-size: .75rem; text-align: center; padding: 18px 7px 3px; }
+
+    .technique-list { display: grid; gap: 9px; }
+    .technique-list details { background: #fff; border-color: var(--line); }
+    .technique-list details[open] { border-color: #cbded0; background: #fdfefb; }
+    .technique-list p { color: var(--muted); font-size: .82rem; margin-top: 9px; }
+    .technique-list ol, .technique-list ul { color: var(--muted); font-size: .82rem; margin: 9px 0 0 19px; }
+    .technique-list li { margin: 6px 0; }
+    .subtle-box { background: #f4f6f1; border-radius: 13px; padding: 11px 12px; margin-top: 10px; color: var(--muted); font-size: .79rem; }
+    .inline-control { display: flex; align-items: flex-start; gap: 9px; margin-top: 12px; color: var(--ink); font-size: .82rem; font-weight: 650; }
+    .inline-control input { width: 18px; height: 18px; accent-color: var(--green); margin-top: 2px; flex: 0 0 auto; }
+    .field.compact { margin: 9px 0; }
+    .field.compact select, .field.compact input { min-height: 42px; padding: 9px 11px; }
+    .status-inline { margin-top: 8px; color: var(--muted); font-size: .76rem; }
+
+    .inline-link { border: 0; background: transparent; padding: 0; color: var(--green-dark); text-decoration: underline; text-underline-offset: 3px; font-size: inherit; font-weight: 750; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .practice-category { margin: 16px 0 8px; font-size: .78rem; font-weight: 850; letter-spacing: .04em; color: var(--green-dark); }
+    .practice-actions { display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+    .practice-meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:7px; }
+    .mini-tag { font-size:.7rem; background:#f0f2ed; color:var(--muted); border-radius:999px; padding:4px 8px; }
+    .audio-empty { display:grid; grid-template-columns:44px 1fr; gap:12px; align-items:start; padding:15px 0; border-bottom:1px solid var(--line); }
+    .audio-empty:last-child { border-bottom:0; }
+    .audio-icon { width:42px; height:42px; display:grid; place-items:center; background:var(--green-soft); border-radius:14px; font-size:1.15rem; }
+    .thought-step { display:none; } .thought-step.active { display:block; }
+    .step-progress { display:flex; gap:5px; margin:0 0 14px; }
+    .step-progress span { height:4px; flex:1; border-radius:9px; background:#e5e9e4; }
+    .step-progress span.on { background:var(--green); }
+    .review-prompt { margin-top:12px; }
+    @media (min-width: 600px) { main { padding-left: 22px; padding-right: 22px; } .topbar { padding-left: 24px; padding-right: 24px; } .card { padding: 21px; } .micro-btn { min-height: 91px; } }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+  </style>
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png" type="image/png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">v.</span><span>vetor</span></div>
+    <div class="date-pill" id="datePill">Seu espaço de cuidado</div>
+  </header>
+  <main>
+    <div class="storage-warning" id="storageWarning" role="status">O navegador não permitiu salvar os dados neste modo de abertura. Eles podem desaparecer ao fechar a página. Para uso contínuo, publique o arquivo em um endereço HTTPS que você controle.</div>
+
+    <!-- HOJE -->
+    <section class="screen active" id="screen-hoje" aria-labelledby="title-hoje">
+      <div class="intro">
+        <div class="eyebrow" id="greeting">Um passo de cada vez</div>
+        <h1 id="title-hoje">Você não precisa resolver tudo hoje.</h1>
+        <p class="sub">Cuide do próximo passo possível. Pequeno, concreto e suficiente para começar.</p>
+      </div>
+      <div class="stack">
+        <article class="card feature">
+          <div class="card-head">
+            <div><div class="eyebrow">Seu ponto de partida</div><h2>Qual é o próximo passo de 5 minutos?</h2><p>Não espere a vontade aparecer. Escolha algo pequeno e veja como se sente depois.</p></div>
+            <div class="feature-icon" aria-hidden="true">🌱</div>
+          </div>
+          <div class="micro" id="microChoices">
+            <button class="micro-btn" type="button" data-task="Beber água e abrir a janela"><span class="micro-emoji">💧</span><span>Água + luz natural</span></button>
+            <button class="micro-btn" type="button" data-task="Organizar apenas uma pequena superfície por 5 minutos"><span class="micro-emoji">🧹</span><span>Organizar um canto</span></button>
+            <button class="micro-btn" type="button" data-task="Caminhar ou se movimentar suavemente por 5 minutos"><span class="micro-emoji">🚶</span><span>Movimentar o corpo</span></button>
+            <button class="micro-btn" type="button" data-task="Abrir a tarefa pendente e trabalhar nela por apenas 5 minutos"><span class="micro-emoji">📝</span><span>Começar por 3 linhas</span></button>
+          </div>
+          <div class="field"><label for="taskInput">Sua ação de agora</label><input id="taskInput" type="text" maxlength="180" placeholder="Ex.: tomar banho, caminhar, responder uma mensagem"></div>
+          <div class="timer" id="actionTimer" aria-live="off">05:00</div>
+          <div class="timer-caption" id="actionTimerCaption">Cinco minutos. Sem precisar fazer perfeito.</div>
+          <div class="split">
+            <button class="btn btn-primary btn-full" type="button" id="actionTimerBtn">▶ Começar</button>
+            <button class="btn btn-plain btn-full" type="button" id="actionResetBtn">Zerar</button>
+          </div>
+          <div class="split" style="margin-top:14px">
+            <div class="rating-box">
+              <div class="range-top"><label for="masteryRange">Senso de realização</label><span class="range-value" id="masteryVal">3/5</span></div>
+              <input id="masteryRange" type="range" min="1" max="5" value="3">
+              <div class="scale-note"><span>Baixo</span><span>Alto</span></div>
+            </div>
+            <div class="rating-box">
+              <div class="range-top"><label for="pleasureRange">Prazer</label><span class="range-value" id="pleasureVal">3/5</span></div>
+              <input id="pleasureRange" type="range" min="1" max="5" value="3">
+              <div class="scale-note"><span>Baixo</span><span>Alto</span></div>
+            </div>
+          </div>
+          <button class="btn btn-soft btn-full" type="button" id="saveActivityBtn" style="margin-top:12px">✓ Registrar minha ação</button>
+          <p class="hint" style="margin-top:8px">O registro conta a tentativa, não a perfeição. Se cinco minutos forem demais, reduza para um.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-head"><div><h2>Check-in rápido</h2><p>Não é uma nota sobre você. É só um retrato de agora.</p></div><span class="tag">30 segundos</span></div>
+          <div class="field">
+            <div class="range-top"><label for="moodRange">Como está seu ânimo?</label><span class="range-value" id="moodVal">3/5</span></div>
+            <input id="moodRange" type="range" min="1" max="5" value="3">
+            <div class="scale-note"><span>1 · Muito baixo</span><span>5 · Muito bom</span></div>
+          </div>
+          <div class="field">
+            <div class="range-top"><label for="anxietyRange">Quanto pesa a ansiedade?</label><span class="range-value" id="anxietyVal">3/5</span></div>
+            <input id="anxietyRange" type="range" min="1" max="5" value="3">
+            <div class="scale-note"><span>1 · Pouca</span><span>5 · Muito intensa</span></div>
+          </div>
+          <button class="btn btn-primary btn-full" type="button" id="saveCheckinBtn">Salvar check-in de hoje</button>
+          <p class="hint" id="checkinSavedHint" style="margin-top:8px">Você pode atualizar o registro durante o dia.</p>
+        </article>
+
+        <article class="card">
+          <div class="card-head"><div><h2>Hábitos de base</h2><p>Escolha o que é viável hoje; não precisa marcar tudo.</p></div><span class="tag" id="habitCountTag">0 feitos</span></div>
+          <div class="habit-list" id="habitList"></div>
+          <p class="hint" style="margin-top:10px">São lembretes de cuidado, não obrigações nem substitutos de orientação médica.</p>
+        </article>
+
+        <article class="card"><div class="card-head"><div><h2>Outros espaços do Vetor</h2><p>Escolha apenas o que for útil agora.</p></div></div><div class="btn-row"><button class="btn btn-primary" type="button" data-go-screen="acalmar">Acalmar agora</button><button class="btn btn-soft" type="button" data-go-screen="praticas">Práticas cotidianas</button><button class="btn btn-soft" type="button" data-go-screen="audios">Áudios e sons</button><button class="btn btn-plain" type="button" id="resumeThoughtBtn" data-go-screen="pensamentos" hidden>Retomar rascunho</button><button class="btn btn-plain" type="button" data-go-screen="pensamentos">Novo registro de pensamento</button></div></article>
+        <div class="notice"><strong>Uma regra para dias difíceis</strong>Faça uma versão menor, peça apoio ou descanse quando necessário. Um dia ruim não apaga o que você já construiu.</div>
+      </div>
+    </section>
+
+    <!-- ACALMAR -->
+    <section class="screen" id="screen-acalmar" aria-labelledby="title-acalmar">
+      <div class="intro"><div class="eyebrow">Pausa breve</div><h1 id="title-acalmar">Acalmar, sem brigar com o que sente.</h1><p class="sub">A meta não é obrigar a ansiedade a sumir. É abrir um pouco de espaço para decidir o próximo passo.</p></div>
+      <div class="stack">
+        <article class="card" id="breathCard">
+          <div class="card-head"><div><h2>2. Respiração controlada durante o desconforto</h2><p>Para praticar com tranquilidade ou atravessar um momento de desconforto. Respire suavemente, sem encher os pulmões à força.</p></div><span class="tag">Até 5 min</span></div>
+          <div class="breath-layout">
+            <div class="breath-circle" id="breathCircle"><div><div class="breath-instruction" id="breathInstruction">Vamos começar</div><div class="breath-sub" id="breathSub">No seu ritmo</div></div></div>
+            <div class="timer" id="breathTimer" style="font-size:2rem">05:00</div>
+            <p class="hint" id="breathStatus">Como referência, inspire suavemente pelo nariz por cerca de 5 segundos e solte o ar lentamente por cerca de 5. A contagem é opcional: respire naturalmente se acompanhar o ritmo aumentar o desconforto.</p>
+            <label class="inline-control"><input type="checkbox" id="breathPauseToggle"><span>Incluir uma pausa muito breve entre inspirar e expirar (opcional). Não force a retenção; desmarque se piorar o desconforto.</span></label>
+            <div class="btn-row" style="justify-content:center"><button class="btn btn-primary" id="breathBtn" type="button">▶ Iniciar exercício</button><button class="btn btn-plain" id="breathResetBtn" type="button">Reiniciar</button></div>
+          </div>
+          <p class="hint" style="margin-top:14px">Se sentir tontura ou desconforto, interrompa o ritmo guiado e deixe a respiração voltar ao natural. Você não precisa concluir os cinco minutos. Falta de ar nova, intensa, persistente ou diferente do habitual não deve ser atribuída automaticamente à ansiedade.</p>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Outras ferramentas de manejo</h2><p>Escolha uma técnica conforme o momento. Não é necessário fazer todas, nem fazê-las perfeitamente.</p></div><span class="tag">Escolha livre</span></div>
+          <div class="technique-list">
+            <details open>
+              <summary>1. Respiração preventiva — praticar quando estiver tranquilo</summary>
+              <p>A prática regular ajuda você a se familiarizar com a técnica antes de precisar dela. A orientação recebida sugeriu três ou quatro momentos breves ao longo do dia; use essa frequência apenas como referência, sem transformar a prática em cobrança. Escolha um momento que já faça parte da rotina, em vez de depender apenas da memória.</p>
+              <div class="field compact"><label for="practiceAnchor">Associar a este momento da rotina</label><select id="practiceAnchor"><option>Ao acordar</option><option>Depois de escovar os dentes</option><option>Antes de começar o trabalho ou estudo</option><option>Antes do almoço</option><option>Ao encerrar o trabalho</option><option>Antes de dormir</option><option>Outro momento habitual</option></select></div>
+              <p class="hint">O aplicativo guarda sua escolha, mas não envia alarmes nem notificações em segundo plano. O objetivo é usar um hábito já existente como lembrete.</p>
+              <button class="btn btn-primary btn-full" type="button" id="preparePreventiveBtn">Preparar prática de 5 minutos</button>
+              <p class="status-inline" id="preventiveNote">Ao concluir o exercício guiado, a prática será registrada no histórico.</p>
+            </details>
+            <details>
+              <summary>3. Respiração diafragmática</summary>
+              <p>Sente-se com apoio ou deite-se se for confortável. Coloque uma mão no abdômen e outra no peito. Inspire suavemente e observe se o abdômen se move um pouco; solte o ar sem empurrá-lo para fora. Não tente imobilizar o tórax nem conseguir uma respiração “perfeita”.</p>
+              <p>Se focar na respiração aumentar o desconforto, abandone esta técnica e volte a atenção para o ambiente.</p>
+              <button class="btn btn-soft btn-full" type="button" id="prepareDiaphragmBtn">Usar no exercício respiratório acima</button>
+            </details>
+            <details>
+              <summary>4. Ajuste da postura e relaxamento corporal</summary>
+              <p>Encontre uma posição estável, sentado ou deitado. Sem mudar tudo de uma vez, observe e alivie a tensão em:</p>
+              <ol><li>Ombros e pescoço: deixe-os baixar sem forçar.</li><li>Mandíbula: afaste levemente os dentes e solte a língua.</li><li>Mãos: descruze os dedos e reduza a força com que os contrai.</li></ol>
+              <p>Combine com uma expiração tranquila. O objetivo é reduzir um pouco a tensão, não atingir relaxamento total.</p>
+              <button class="btn btn-soft btn-full" type="button" id="logRelaxBtn">Registrar que pratiquei</button>
+            </details>
+            <details>
+              <summary>5. Redirecionamento da atenção</summary>
+              <p>A ideia não é apagar a ansiedade, mas evitar que toda a atenção fique presa aos batimentos, à respiração ou ao medo. Escolha uma opção:</p>
+              <ul><li><strong>Visão:</strong> descreva a forma, a cor, a textura e os detalhes de um objeto.</li><li><strong>Audição:</strong> identifique sons próximos e distantes.</li><li><strong>Atenção alternada:</strong> observe um objeto, depois outro, descrevendo mentalmente cada um.</li><li><strong>Olhos fechados:</strong> só se for confortável e seguro; use os sons como referência.</li></ul>
+              <p>O exercício 5–4–3–2–1 logo abaixo é outra forma de orientar os sentidos.</p>
+              <button class="btn btn-soft btn-full" type="button" id="logGroundingBtn">Registrar prática de atenção</button>
+            </details>
+            <details>
+              <summary>6. Afastamento temporário de um ambiente estimulante</summary>
+              <p>Se o local estiver intensificando o desconforto e for seguro fazê-lo, peça licença e vá por alguns minutos para um espaço menos estimulante. Ajuste a postura, use uma técnica confortável e avalie quando retomar a atividade.</p>
+              <div class="subtle-box"><strong>Importante:</strong> sair não precisa ser uma condição para enfrentar toda situação. Quando possível, retome suas atividades gradualmente, evitando transformar a saída em uma regra obrigatória para se sentir seguro.</div>
+              <button class="btn btn-soft btn-full" type="button" id="logPauseBtn">Registrar que usei uma pausa</button>
+            </details>
+            <details>
+              <summary>7. Estímulo frio — recurso opcional</summary>
+              <p>Se for confortável, segure brevemente uma bolsa fria envolvida em tecido ou use um pano fresco. Observe a sensação e continue percebendo o ambiente. Os efeitos variam; não há garantia de que interrompa a crise e isso não é uma técnica essencial.</p>
+              <div class="notice" style="margin-top:10px"><strong>Segurança</strong>Não coloque gelo diretamente sobre a pele, não prolongue a exposição e não use estímulos extremos. Evite o recurso se tiver uma condição que torne o frio inadequado.</div>
+              <button class="btn btn-soft btn-full" type="button" id="logColdBtn">Registrar uso opcional</button>
+            </details>
+            <details>
+              <summary>8. Exercício aeróbico leve e regular</summary>
+              <p>Caminhada ou bicicleta em intensidade que permita conversar sem grande dificuldade são opções. Comece pelo que é tolerável e aumente gradualmente. Não é necessário evitar toda elevação dos batimentos; o ritmo deve respeitar seu condicionamento e as orientações profissionais.</p>
+              <p>Como referência geral, a OMS recomenda para adultos 150–300 minutos semanais de atividade moderada. É uma meta de saúde pública, não uma exigência imediata: alguma atividade é melhor do que nenhuma, e você pode começar com poucos minutos.</p>
+              <div class="split">
+                <div class="field compact"><label for="aerobicType">Atividade</label><select id="aerobicType"><option value="Caminhada">Caminhada</option><option value="Bicicleta">Bicicleta</option><option value="Outra atividade leve">Outra atividade leve</option></select></div>
+                <div class="field compact"><label for="aerobicMinutes">Minutos realizados</label><input id="aerobicMinutes" type="number" inputmode="numeric" min="1" max="240" step="1" value="5"></div>
+              </div>
+              <button class="btn btn-primary btn-full" type="button" id="saveAerobicBtn">Registrar atividade física</button>
+            </details>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head"><div><h2>Orientação sensorial: 5–4–3–2–1</h2><p>Prática guiada da técnica de redirecionamento da atenção. Não há respostas certas ou erradas.</p></div><span class="tag">5–4–3–2–1</span></div>
+          <div class="sense-step"><span class="sense-num">5</span><div><strong>Veja cinco coisas</strong><span>Observe cores, formas e objetos ao seu redor.</span></div></div>
+          <div class="sense-step"><span class="sense-num">4</span><div><strong>Sinta quatro sensações físicas</strong><span>Note os pés no chão, o encosto, a roupa ou a temperatura.</span></div></div>
+          <div class="sense-step"><span class="sense-num">3</span><div><strong>Escute três sons</strong><span>Inclua sons distantes e próximos, sem julgá-los.</span></div></div>
+          <div class="sense-step"><span class="sense-num">2</span><div><strong>Perceba dois cheiros</strong><span>Se não sentir cheiros, apenas pule esta etapa.</span></div></div>
+          <div class="sense-step"><span class="sense-num">1</span><div><strong>Note um gosto ou uma sensação na boca</strong><span>Não force nada; basta direcionar a atenção.</span></div></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Separar preocupação de ação</h2><p>Nem todo pensamento precisa ser resolvido neste instante.</p></div></div>
+          <div class="field"><label for="worryInput">O que está ocupando sua cabeça?</label><textarea id="worryInput" maxlength="500" placeholder="Escreva em uma frase, sem precisar organizar tudo."></textarea></div>
+          <p class="field-label">Existe algo concreto e seguro que você possa fazer nos próximos 10 minutos?</p>
+          <div class="split" style="margin-top:9px"><button class="btn btn-primary btn-full" id="worryActBtn" type="button">Sim, dar um passo</button><button class="btn btn-plain btn-full" id="worryLaterBtn" type="button">Não agora</button></div>
+          <div id="worryResult" class="notice" style="display:none;margin-top:12px" role="status"></div>
+        </article>
+        <details><summary>Quando a falta de ar precisa de avaliação médica</summary><p>Não atribua automaticamente à ansiedade todo episódio de falta de ar, dor no peito ou palpitação. Procure atendimento urgente se a falta de ar for nova, intensa, persistente ou diferente do habitual, especialmente se houver dor/pressão no peito, desmaio, confusão ou dificuldade importante para respirar. Em emergência no Brasil, ligue para o SAMU 192 ou vá a um pronto-socorro.</p></details>
+        <details><summary>Quando procurar ajuda imediata</summary><p>Se houver risco de se machucar ou você não conseguir se manter em segurança, procure uma pessoa de confiança e atendimento presencial imediatamente. No Brasil, ligue para o SAMU (192) em emergência ou vá a uma UPA/pronto-socorro. O CVV atende pelo 188 para apoio emocional, gratuitamente; ele não substitui o atendimento de emergência.</p><p style="margin-top:8px"><a href="https://www.gov.br/saude/pt-br/composicao/saes/samu-192" target="_blank" rel="noopener noreferrer">Informações oficiais sobre o SAMU 192</a> · <a href="https://cvv.org.br/" target="_blank" rel="noopener noreferrer">CVV</a></p></details>
+      </div>
+    </section>
+
+    <!-- PENSAMENTOS -->
+    <section class="screen" id="screen-pensamentos" aria-labelledby="title-pensamentos">
+      <div class="intro"><div class="eyebrow">Técnica inspirada na TCC</div><h1 id="title-pensamentos">Examine o pensamento, não o seu valor.</h1><p class="sub">Pensamentos podem parecer fatos quando estamos sob pressão. Registre o que aconteceu e procure uma resposta mais equilibrada, sem positividade forçada.</p></div>
+      <div class="stack">
+        <article class="card">
+          <div class="card-head"><div><h2>Registro breve de pensamento</h2><p>Preencha o que conseguir. Você pode deixar campos opcionais em branco.</p></div><span class="tag">2–5 min</span></div>
+          <div class="step-progress" id="thoughtStepProgress" aria-label="Etapa do registro"><span class="on"></span><span></span><span></span></div>
+          <p class="hint" id="thoughtStepLabel" style="margin-bottom:10px">Etapa 1 de 3 · Situação e emoção</p>
+          <div class="thought-step active" data-thought-step="0">
+          <div class="field"><label for="thoughtSituation">1. O que aconteceu?</label><textarea id="thoughtSituation" maxlength="700" placeholder="Descreva a situação como uma câmera registraria."></textarea></div>
+          <div class="field"><label for="thoughtAuto">2. Qual pensamento passou pela sua cabeça?</label><textarea id="thoughtAuto" maxlength="700" placeholder="Ex.: vou falhar; não dou conta; nada vai melhorar."></textarea></div>
+          <div class="split">
+            <div class="field"><label for="thoughtEmotion">Emoção principal</label><select id="thoughtEmotion"><option>Ansiedade</option><option>Tristeza</option><option>Raiva</option><option>Culpa</option><option>Vergonha</option><option>Frustração</option><option>Medo</option><option>Outra</option></select></div>
+            <div class="field"><div class="range-top"><label for="thoughtIntensity">Intensidade</label><span class="range-value" id="thoughtIntensityVal">70/100</span></div><input id="thoughtIntensity" type="range" min="0" max="100" step="5" value="70"></div>
+          </div>
+          </div>
+          <div class="thought-step" data-thought-step="1">
+          <div class="field"><label for="thoughtFor">3. O que parece apoiar esse pensamento?</label><textarea id="thoughtFor" maxlength="700" placeholder="Fatos concretos, não apenas medos ou impressões."></textarea></div>
+          <div class="field"><label for="thoughtAgainst">4. O que não combina totalmente com ele? Há outra explicação?</label><textarea id="thoughtAgainst" maxlength="700" placeholder="O que você diria a alguém de quem gosta? O que está deixando de considerar?"></textarea></div>
+          </div>
+          <div class="thought-step" data-thought-step="2">
+          <div class="field"><label for="thoughtBalanced">5. Uma resposta mais equilibrada</label><textarea id="thoughtBalanced" maxlength="700" placeholder="Realista e justa — não precisa ser otimista. Ex.: está difícil, mas posso começar por uma parte."></textarea></div>
+          <div class="field"><label for="thoughtNext">6. Qual é o próximo passo possível?</label><input id="thoughtNext" type="text" maxlength="180" placeholder="Uma ação pequena, ou decidir quando retomar o assunto"></div>
+          </div>
+          <div class="btn-row"><button class="btn btn-plain" type="button" id="thoughtPrevBtn" disabled>Voltar</button><button class="btn btn-soft" style="flex:1" type="button" id="thoughtNextBtn">Próxima etapa</button></div>
+          <div class="btn-row"><button class="btn btn-primary" style="flex:1" type="button" id="saveThoughtBtn">Salvar registro</button><button class="btn btn-plain" style="flex:1" type="button" id="saveThoughtDraftBtn">Salvar parcialmente</button></div><p class="hint" id="thoughtDraftHint" role="status" style="margin-top:8px">O rascunho é salvo neste navegador enquanto você preenche.</p>
+          <p class="hint" style="margin-top:9px">Este exercício é uma ferramenta de reflexão. Não é necessário contestar todo pensamento nem fazer isso durante uma crise intensa.</p>
+        </article>
+        <article class="card"><div class="card-head"><div><h2>Seus registros recentes</h2><p>Guardados neste navegador.</p></div><span class="tag" id="thoughtCount">0 registros</span></div><div class="list" id="thoughtHistory"></div></article>
+      </div>
+    </section>
+
+    <!-- PRÁTICAS COTIDIANAS -->
+    <section class="screen" id="screen-praticas" aria-labelledby="title-praticas">
+      <div class="intro"><div class="eyebrow">Menos atrito no dia a dia</div><h1 id="title-praticas">Deixe o próximo passo mais fácil.</h1><p class="sub">“Não deixar rastros” é um convite: quando for simples e viável, resolva um pequeno resíduo da atividade. Não é uma regra de organização perfeita.</p></div>
+      <div class="stack">
+        <article class="card"><div class="card-head"><div><h2>Práticas sugeridas</h2><p>Favorite as que combinam com sua rotina. Você não precisa fazer todas.</p></div></div><div class="field"><label for="practiceFilter">Filtrar por contexto</label><select id="practiceFilter"><option value="Casa e ambiente">Casa e ambiente</option><option value="Trabalho e estudos">Trabalho e estudos</option><option value="Autocuidado">Autocuidado</option><option value="Rotina e transições">Rotina e transições</option><option value="Todas">Todos os contextos</option></select></div><div id="suggestedPractices"></div></article>
+        <article class="card"><div class="card-head"><div><h2>Criar prática personalizada</h2><p>Escolha algo pequeno, contextual e possível.</p></div></div><div class="field"><label for="customPracticeName">Prática</label><input id="customPracticeName" type="text" maxlength="180" placeholder="Ex.: deixar a garrafa pronta para amanhã"></div><div class="split"><div class="field"><label for="customPracticeContext">Contexto</label><select id="customPracticeContext"><option>Casa e ambiente</option><option>Trabalho e estudos</option><option>Autocuidado</option><option>Rotina e transições</option></select></div><div class="field"><label for="customPracticeTrigger">Gatilho natural</label><input id="customPracticeTrigger" maxlength="120" type="text" placeholder="Ex.: após o jantar"></div></div><div class="btn-row"><button class="btn btn-primary" style="flex:1" id="addCustomPracticeBtn" type="button">Salvar prática</button><button class="btn btn-plain" id="cancelEditPracticeBtn" type="button" hidden>Cancelar edição</button></div></article>
+        <article class="card"><div class="card-head"><div><h2>Favoritas e personalizadas</h2><p>Edite, favorite ou remova as suas práticas personalizadas.</p></div></div><div id="myPractices"></div></article>
+        <article class="card"><div class="card-head"><div><h2>Histórico de práticas</h2><p>Um registro do que você experimentou, sem metas obrigatórias.</p></div></div><div id="dailyPracticeHistory"></div></article>
+      </div>
+    </section>
+
+    <!-- ÁUDIOS E SONS: BIBLIOTECA VAZIA INTENCIONAL -->
+    <section class="screen" id="screen-audios" aria-labelledby="title-audios">
+      <div class="intro"><div class="eyebrow">Biblioteca de áudio</div><h1 id="title-audios">Um espaço para escutar com calma.</h1><p class="sub">Esta biblioteca está preparada para receber arquivos reais em uma atualização futura. Nenhum áudio é simulado ou reproduzido nesta versão.</p></div>
+      <article class="card"><div class="audio-empty"><div class="audio-icon" aria-hidden="true">🎧</div><div><h2>Meditação guiada</h2><p class="hint">Espaço reservado para conteúdos guiados revisados e adicionados futuramente.</p><span class="mini-tag">Conteúdo futuro</span></div></div>
+      <div class="audio-empty"><div class="audio-icon" aria-hidden="true">🌿</div><div><h2>Relaxamento corporal</h2><p class="hint">Áudios para acompanhar o relaxamento progressivo, quando os arquivos estiverem disponíveis.</p><span class="mini-tag">Conteúdo futuro</span></div></div>
+      <div class="audio-empty"><div class="audio-icon" aria-hidden="true">🌧️</div><div><h2>Sons da natureza e ambientes tranquilos</h2><p class="hint">Sons ambientais reais, sem reprodução automática.</p><span class="mini-tag">Conteúdo futuro</span></div></div>
+      <div class="audio-empty"><div class="audio-icon" aria-hidden="true">🎯</div><div><h2>Concentração ou pausa</h2><p class="hint">Paisagens sonoras para períodos de foco ou pequenas pausas.</p><span class="mini-tag">Conteúdo futuro</span></div></div>
+      <div class="audio-empty"><div class="audio-icon" aria-hidden="true">🌙</div><div><h2>Desacelerar antes de dormir</h2><p class="hint">Conteúdos para compor uma rotina noturna, sem prometer induzir o sono.</p><span class="mini-tag">Conteúdo futuro</span></div></div>
+      <div class="subtle-box" style="margin-top:14px">Os itens acima são categorias vazias. Não há botões de reprodução, narração, síntese de fala nem serviços externos de áudio nesta versão.</div></article>
+    </section>
+
+    <!-- PROGRESSO -->
+    <section class="screen" id="screen-progresso" aria-labelledby="title-progresso">
+      <div class="intro"><div class="eyebrow">Perceber padrões sem se julgar</div><h1 id="title-progresso">Progresso não é uma linha reta.</h1><p class="sub">Use os dados como informação, não como avaliação de sucesso ou fracasso.</p></div>
+      <div class="stack">
+        <article class="card"><div class="card-head"><div><h2>Últimos 7 dias</h2><p>Resumo baseado nos seus check-ins salvos.</p></div></div><div class="stat-grid"><div class="stat"><strong id="avgMood">—</strong><span>Ânimo médio / 5</span></div><div class="stat"><strong id="avgAnxiety">—</strong><span>Ansiedade média / 5</span></div><div class="stat"><strong id="weekCheckins">0/7</strong><span>Dias com check-in</span></div><div class="stat"><strong id="weekActivities">0</strong><span>Ações registradas</span></div><div class="stat"><strong id="weekTechniques">0</strong><span>Práticas de regulação</span></div><div class="stat"><strong id="weekAerobic">0 min</strong><span>Atividade aeróbica</span></div></div><div class="section-label" style="margin-top:17px">Ânimo registrado por dia</div><div class="week-chart" id="weekChart"></div></article><div class="review-prompt"><div class="field"><label for="weeklyReflection">Revisão semanal opcional: o que pareceu útil? O que gostaria de ajustar?</label><textarea id="weeklyReflection" maxlength="1200" placeholder="Sem nota nem julgamento: observe o que ajudou, o que pesou e um ajuste possível."></textarea><button class="btn btn-soft btn-full" type="button" id="saveWeeklyReflectionBtn">Salvar reflexão</button></div><p class="hint">A frequência de registros mostra apenas o que foi anotado no app; não mede sua saúde mental nem seu valor.</p></div></article>
+        <article class="card"><div class="card-head"><div><h2>Ações recentes</h2><p>Conta ter tentado, inclusive em dias difíceis.</p></div><span class="tag" id="activityCount">0</span></div><div class="list" id="activityHistory"></div></article>
+        <article class="card"><div class="card-head"><div><h2>Práticas de manejo</h2><p>Um registro simples para reconhecer o que você experimentou.</p></div><span class="tag" id="practiceCount">0</span></div><div class="list" id="practiceHistory"></div></article>
+        <article class="card"><div class="card-head"><div><h2>Dados e privacidade</h2><p>O que você registra pode ser pessoal.</p></div></div><p class="sub" style="font-size:.83rem">Os dados ficam no armazenamento local deste navegador e não são enviados por este arquivo a um servidor. Não há sincronização entre aparelhos. Quem tiver acesso ao seu aparelho ou perfil de navegador poderá eventualmente ver esses registros. Exporte uma cópia de segurança quando precisar e apague os dados se compartilhar o dispositivo.</p><div class="btn-row"><button class="btn btn-soft" id="exportSummaryBtn" type="button">Copiar resumo</button><button class="btn btn-soft" id="backupBtn" type="button">Baixar backup</button></div><div class="field"><label for="restoreFileInput">Restaurar um backup JSON</label><input id="restoreFileInput" type="file" accept=".json,application/json"><p class="hint">A restauração substitui os registros atuais pelos dados da cópia selecionada. Faça um backup atual antes de substituir.</p><button class="btn btn-plain btn-full" id="restoreBackupBtn" type="button">Restaurar cópia selecionada</button></div><div class="field"><label for="deleteConfirm">Apagar todos os dados locais</label><p class="hint">Isso remove check-ins, hábitos, ações, pensamentos e preocupações registrados neste app neste navegador. A ação não pode ser desfeita.</p><button class="btn btn-danger btn-full" id="deleteDataBtn" type="button">Apagar meus registros</button></div></article>
+        <article class="card"><div class="card-head"><div><h2>O que sustenta estas ferramentas?</h2><p>Ferramentas de apoio baseadas em princípios estudados, sem promessa de resultado.</p></div></div><details><summary>Ativação comportamental e auto-observação</summary><p>Planejar atividades concretas e observar a relação entre atividade e humor é compatível com a ativação comportamental. Diretrizes clínicas incluem intervenções estruturadas de ativação comportamental e TCC; o app oferece apenas exercícios breves, não o tratamento completo.</p><p><a href="https://www.nice.org.uk/guidance/ng222/chapter/Recommendations" target="_blank" rel="noopener noreferrer">NICE — recomendações para depressão em adultos</a></p></details><details><summary>Respiração confortável</summary><p>Exercícios suaves e regulares de respiração podem ajudar a lidar com o estresse. Não force o ar nem prenda a respiração; interrompa se houver desconforto.</p><p><a href="https://www.nhs.uk/mental-health/self-help/guides-tools-and-activities/breathing-exercises-for-stress/" target="_blank" rel="noopener noreferrer">NHS — exercício respiratório para estresse</a></p></details><details><summary>Atenção plena e pensamentos</summary><p>Notar pensamentos e emoções sem tratá-los automaticamente como fatos pode ajudar algumas pessoas. Isso não funciona igual para todos; se um exercício aumentar seu desconforto, pare e procure uma forma de apoio mais adequada.</p><p><a href="https://www.nhs.uk/mental-health/self-help/tips-and-support/mindfulness/" target="_blank" rel="noopener noreferrer">NHS — atenção plena</a></p></details><details><summary>Atividade física e ansiedade</summary><p>As recomendações da OMS apoiam atividade física regular e gradual para a saúde geral, incluindo saúde mental. A meta semanal é uma referência para adultos, não uma cobrança diária nem uma exigência para começar.</p><p><a href="https://www.who.int/initiatives/behealthy/physical-activity/" target="_blank" rel="noopener noreferrer">OMS — atividade física</a> · <a href="https://www.nice.org.uk/guidance/cg113/chapter/Recommendations" target="_blank" rel="noopener noreferrer">NICE — ansiedade e transtorno do pânico</a></p></details><div class="notice" style="margin-top:12px"><strong>Importante</strong>Este aplicativo é um apoio de autocuidado, não diagnostica nem substitui psicoterapia, acompanhamento médico ou medicação prescrita. Não altere nem interrompa medicamentos por conta própria.</div></article>
+        <article class="card"><div class="card-head"><div><h2>Precisa de ajuda agora?</h2><p>Quando a situação ultrapassa o que um exercício de autocuidado pode oferecer.</p></div></div><p class="sub" style="font-size:.84rem">Se você estiver em risco de se machucar ou não conseguir se manter em segurança, procure alguém de confiança e atendimento presencial imediato. Em emergência, ligue para o SAMU 192 ou vá a uma UPA/pronto-socorro. O CVV oferece apoio emocional pelo 188.</p><div class="btn-row"><a class="btn btn-soft" href="https://cvv.org.br/" target="_blank" rel="noopener noreferrer">Acessar CVV</a><a class="btn btn-plain" href="https://www.gov.br/saude/pt-br/composicao/saes/samu-192" target="_blank" rel="noopener noreferrer">Sobre SAMU 192</a></div></article>
+      </div>
+    </section>
+    <div class="footer-note">Vetor · autocuidado em pequenos passos · seus dias não precisam ser perfeitos para valerem.</div>
+  </main>
+</div>
+<nav class="bottom-nav" aria-label="Navegação principal">
+  <button class="nav-btn active" type="button" data-screen="hoje" aria-current="page"><span class="nav-icon" aria-hidden="true">☀️</span><span>Hoje</span></button>
+  <button class="nav-btn" type="button" data-screen="acalmar"><span class="nav-icon" aria-hidden="true">🌿</span><span>Acalmar</span></button>
+  <button class="nav-btn" type="button" data-screen="praticas"><span class="nav-icon" aria-hidden="true">⌂</span><span>Práticas</span></button>
+  <button class="nav-btn" type="button" data-screen="pensamentos"><span class="nav-icon" aria-hidden="true">🧠</span><span>Pensamentos</span></button>
+  <button class="nav-btn" type="button" data-screen="audios"><span class="nav-icon" aria-hidden="true">♫</span><span>Áudios</span></button>
+  <button class="nav-btn" type="button" data-screen="progresso"><span class="nav-icon" aria-hidden="true">↗</span><span>Progresso</span></button>
+</nav>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  'use strict';
+  const STORE_KEY = 'vetor_tcc_data_v2';
+  const defaults = () => ({ checkins: [], activities: [], thoughts: [], thoughtDraft: {}, worries: [], habits: {}, practices: [], aerobic: [], customPractices: [], dailyPractices: [], settings: { practiceAnchor: 'Ao acordar', weeklyReflection: '' } });
+  let storageAvailable = true;
+  let data = defaults();
+  let toastTimer = null;
+  let actionRemaining = 300;
+  let actionEndsAt = null;
+  let actionInterval = null;
+  let breathStartedAt = null;
+  let breathElapsedBefore = 0;
+  let breathInterval = null;
+  let breathMode = 'regular';
+  let pendingBreathPractice = '';
+  const BREATH_TOTAL = 300;
+  const HABITS = [
+    { id: 'med', label: 'Segui a medicação conforme a prescrição', icon: '💊' },
+    { id: 'move', label: 'Movimentei o corpo, mesmo que pouco', icon: '🚶' },
+    { id: 'light', label: 'Tive alguns minutos de luz natural', icon: '☀️' },
+    { id: 'sleep', label: 'Cuidei de algum aspecto da rotina de sono', icon: '🌙' },
+    { id: 'connect', label: 'Falei com alguém ou fiz algo significativo', icon: '🤝' }
+  ];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+  const localDate = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+  const today = () => localDate(new Date());
+  const formatDate = (iso, options = { day:'2-digit', month:'short' }) => {
+    if (!iso) return '';
+    const [y,m,d] = iso.split('-').map(Number);
+    return new Date(y, m-1, d).toLocaleDateString('pt-BR', options);
+  };
+  const formatTime = (stamp) => stamp ? new Date(stamp).toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' }) : '';
+  const safeParse = (value, fallback) => { try { return value ? JSON.parse(value) : fallback; } catch { return fallback; } };
+
+  function checkStorage() {
+    try {
+      const testKey = '__vetor_storage_test__';
+      localStorage.setItem(testKey, '1'); localStorage.removeItem(testKey);
+      return true;
+    } catch { return false; }
+  }
+  function loadData() {
+    storageAvailable = checkStorage();
+    if (!storageAvailable) { $('storageWarning').style.display = 'block'; return defaults(); }
+    const current = safeParse(localStorage.getItem(STORE_KEY), null);
+    if (current && typeof current === 'object') {
+      const base = defaults();
+      return { ...base, ...current,
+        settings: { ...base.settings, ...(current.settings || {}) },
+        practices: Array.isArray(current.practices) ? current.practices : [],
+        aerobic: Array.isArray(current.aerobic) ? current.aerobic : [],
+        customPractices: Array.isArray(current.customPractices) ? current.customPractices : [],
+        dailyPractices: Array.isArray(current.dailyPractices) ? current.dailyPractices : [],
+        thoughtDraft: current.thoughtDraft && typeof current.thoughtDraft === 'object' ? current.thoughtDraft : {}
+      };
+    }
+    // Migração best-effort do protótipo anterior, caso ele tenha usado a mesma origem.
+    const oldActions = safeParse(localStorage.getItem('vetor_ba'), []);
+    const oldCheckins = safeParse(localStorage.getItem('vetor_checkins'), []);
+    const migrated = defaults();
+    if (Array.isArray(oldActions)) migrated.activities = oldActions.map((a, i) => ({ id:`old-${i}`, date:today(), createdAt:Date.now(), task:a.task || 'Ação registrada anteriormente', mastery:Number(a.d || 3), pleasure:Number(a.p || 3), legacyTime:a.time || '' }));
+    if (Array.isArray(oldCheckins)) migrated.checkins = oldCheckins.map((c, i) => {
+      const bits = String(c.date || '').split('/');
+      const iso = bits.length === 2 ? `${new Date().getFullYear()}-${bits[1].padStart(2,'0')}-${bits[0].padStart(2,'0')}` : today();
+      return { date:iso, mood:Number(c.h || 3), anxiety:Math.max(1, 6-Number(c.c || 3)), migratedId:i };
+    });
+    return migrated;
+  }
+  function persist() {
+    if (!storageAvailable) return false;
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(data)); return true; }
+    catch { storageAvailable = false; $('storageWarning').style.display = 'block'; return false; }
+  }
+  function showToast(message) {
+    const el = $('toast'); el.textContent = message; el.style.display = 'block';
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.style.display = 'none'; }, 2600);
+  }
+  async function copyText(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) { await navigator.clipboard.writeText(text); return true; }
+    } catch (_) {}
+    try {
+      const temp = document.createElement('textarea'); temp.value = text; temp.setAttribute('readonly','');
+      temp.style.position = 'fixed'; temp.style.opacity = '0'; document.body.appendChild(temp); temp.select();
+      const ok = document.execCommand('copy'); temp.remove(); return ok;
+    } catch (_) { return false; }
+  }
+  function setRangeValue(rangeId, labelId, suffix = '/5') { $(labelId).textContent = `${$(rangeId).value}${suffix}`; }
+  function setGreeting() {
+    const h = new Date().getHours();
+    $('greeting').textContent = h < 12 ? 'Bom dia. Comece pelo possível.' : h < 18 ? 'Um passo de cada vez.' : 'Boa noite. Você também merece cuidado.';
+    $('datePill').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'short', day:'2-digit', month:'short' }).replace('.', '');
+  }
+  function openScreen(name) {
+    document.querySelectorAll('.screen').forEach(el => el.classList.toggle('active', el.id === `screen-${name}`));
+    document.querySelectorAll('.nav-btn').forEach(el => {
+      const active = el.dataset.screen === name; el.classList.toggle('active', active);
+      if (active) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current');
+    });
+    window.scrollTo({ top:0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  }
+  document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => openScreen(btn.dataset.screen)));
+  document.querySelectorAll('[data-go-screen]').forEach(btn => btn.addEventListener('click', () => openScreen(btn.dataset.goScreen)));
+
+  // Microações e cronômetro de atividade.
+  document.querySelectorAll('.micro-btn').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.micro-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected'); $('taskInput').value = btn.dataset.task || '';
+  }));
+  function renderActionTimer() {
+    const secs = Math.max(0, Math.ceil(actionRemaining));
+    $('actionTimer').textContent = `${String(Math.floor(secs/60)).padStart(2,'0')}:${String(secs%60).padStart(2,'0')}`;
+  }
+  function tickActionTimer() {
+    actionRemaining = Math.max(0, (actionEndsAt - Date.now()) / 1000);
+    renderActionTimer();
+    if (actionRemaining <= 0) {
+      clearInterval(actionInterval); actionInterval = null; actionEndsAt = null;
+      $('actionTimerBtn').textContent = '✓ Tempo concluído';
+      $('actionTimerCaption').textContent = 'Terminou. Você pode registrar a tentativa ou repetir.';
+      if (navigator.vibrate) { try { navigator.vibrate([120,70,120]); } catch (_) {} }
+      showToast('Os 5 minutos terminaram. Registre a tentativa.');
+    }
+  }
+  $('actionTimerBtn').addEventListener('click', () => {
+    if (actionInterval) {
+      actionRemaining = Math.max(0, (actionEndsAt - Date.now()) / 1000);
+      clearInterval(actionInterval); actionInterval = null; actionEndsAt = null;
+      $('actionTimerBtn').textContent = '▶ Retomar'; $('actionTimerCaption').textContent = 'Pausado. Retome quando estiver pronto.'; renderActionTimer();
+    } else if (actionRemaining <= 0) {
+      actionRemaining = 300; actionEndsAt = Date.now() + actionRemaining*1000; actionInterval = setInterval(tickActionTimer, 250);
+      $('actionTimerBtn').textContent = 'Ⅱ Pausar'; $('actionTimerCaption').textContent = 'Faça só o que der para fazer neste momento.'; tickActionTimer();
+    } else {
+      actionEndsAt = Date.now() + actionRemaining*1000; actionInterval = setInterval(tickActionTimer, 250);
+      $('actionTimerBtn').textContent = 'Ⅱ Pausar'; $('actionTimerCaption').textContent = 'Faça só o que der para fazer neste momento.';
+    }
+  });
+  $('actionResetBtn').addEventListener('click', () => {
+    clearInterval(actionInterval); actionInterval = null; actionEndsAt = null; actionRemaining = 300;
+    renderActionTimer(); $('actionTimerBtn').textContent = '▶ Começar'; $('actionTimerCaption').textContent = 'Cinco minutos. Sem precisar fazer perfeito.';
+  });
+  $('masteryRange').addEventListener('input', () => setRangeValue('masteryRange','masteryVal'));
+  $('pleasureRange').addEventListener('input', () => setRangeValue('pleasureRange','pleasureVal'));
+  $('saveActivityBtn').addEventListener('click', () => {
+    const task = $('taskInput').value.trim();
+    if (!task) { $('taskInput').focus(); showToast('Escreva ou escolha uma pequena ação primeiro.'); return; }
+    data.activities.unshift({ id: makeId(), date:today(), createdAt:Date.now(), task, mastery:Number($('masteryRange').value), pleasure:Number($('pleasureRange').value), timerStarted:300-actionRemaining });
+    data.activities = data.activities.slice(0, 300); const saved = persist(); $('taskInput').value = '';
+    document.querySelectorAll('.micro-btn').forEach(b => b.classList.remove('selected'));
+    renderProgress(); showToast(saved ? 'Ação registrada.' : 'Ação registrada apenas nesta sessão; o navegador não permitiu salvar os dados.');
+  });
+
+  // Check-in diário: um registro por dia, atualizável.
+  $('moodRange').addEventListener('input', () => setRangeValue('moodRange','moodVal'));
+  $('anxietyRange').addEventListener('input', () => setRangeValue('anxietyRange','anxietyVal'));
+  $('saveCheckinBtn').addEventListener('click', () => {
+    const entry = { date:today(), mood:Number($('moodRange').value), anxiety:Number($('anxietyRange').value), updatedAt:Date.now() };
+    const i = data.checkins.findIndex(x => x.date === entry.date);
+    if (i >= 0) data.checkins[i] = entry; else data.checkins.unshift(entry);
+    data.checkins.sort((a,b) => b.date.localeCompare(a.date)); data.checkins = data.checkins.slice(0, 120);
+    const saved = persist(); $('checkinSavedHint').textContent = saved ? `Check-in salvo às ${formatTime(entry.updatedAt)}. Você pode atualizá-lo mais tarde.` : 'Registro mantido apenas nesta sessão; o navegador não permitiu armazenamento permanente.';
+    renderProgress(); showToast(saved ? 'Check-in salvo.' : 'Check-in disponível apenas enquanto esta página estiver aberta.');
+  });
+
+  // Hábitos com persistência ao marcar/desmarcar.
+  function renderHabits() {
+    const todayHabits = data.habits[today()] || {};
+    $('habitList').innerHTML = HABITS.map(h => `<label class="habit ${todayHabits[h.id] ? 'checked' : ''}"><input type="checkbox" data-habit="${h.id}" ${todayHabits[h.id] ? 'checked' : ''}><span aria-hidden="true">${h.icon}</span><span>${esc(h.label)}</span></label>`).join('');
+    const count = HABITS.filter(h => todayHabits[h.id]).length; $('habitCountTag').textContent = `${count}/${HABITS.length} feitos`;
+  }
+  $('habitList').addEventListener('change', (event) => {
+    const input = event.target.closest('input[data-habit]'); if (!input) return;
+    if (!data.habits[today()]) data.habits[today()] = {};
+    data.habits[today()][input.dataset.habit] = input.checked;
+    const saved = persist(); renderHabits(); renderProgress();
+    if (!saved) showToast('Hábito marcado apenas nesta sessão; armazenamento indisponível.');
+  });
+
+  // Respiração: temporizada por relógio absoluto para continuar correta se a aba ficar em segundo plano.
+  function breathElapsed() { return breathElapsedBefore + (breathStartedAt ? (Date.now()-breathStartedAt)/1000 : 0); }
+  function renderBreath() {
+    const elapsed = breathElapsed();
+    const remaining = Math.max(0, Math.ceil(BREATH_TOTAL-elapsed));
+    $('breathTimer').textContent = `${String(Math.floor(remaining/60)).padStart(2,'0')}:${String(remaining%60).padStart(2,'0')}`;
+    if (!breathStartedAt) return;
+    if (remaining <= 0) {
+      clearInterval(breathInterval); breathInterval = null; breathStartedAt = null; breathElapsedBefore = 0;
+      $('breathCircle').className = 'breath-circle'; $('breathInstruction').textContent = 'Exercício concluído'; $('breathSub').textContent = 'Volte ao seu ritmo natural'; $('breathBtn').textContent = '▶ Fazer novamente'; $('breathStatus').textContent = 'Observe como está se sentindo, sem cobrar que algo tenha mudado.';
+      const label = pendingBreathPractice || (breathMode === 'diaphragm' ? 'Respiração diafragmática' : 'Respiração controlada');
+      pendingBreathPractice = '';
+      const saved = recordPractice(label, false);
+      showToast(saved ? 'Pausa concluída. Prática registrada.' : 'Pausa concluída; o navegador não permitiu salvar o registro.'); return;
+    }
+    const hasPause = $('breathPauseToggle').checked;
+    const cycleLength = hasPause ? 11 : 10;
+    const cycle = elapsed % cycleLength;
+    if (cycle < 5) {
+      $('breathCircle').className = 'breath-circle inhale';
+      $('breathInstruction').textContent = 'Inspire suavemente';
+      $('breathSub').textContent = breathMode === 'diaphragm' ? 'Observe o abdômen, sem forçar' : 'Pelo nariz, se confortável';
+    } else if (hasPause && cycle < 6) {
+      $('breathCircle').className = 'breath-circle';
+      $('breathInstruction').textContent = 'Transição breve';
+      $('breathSub').textContent = 'Sem prender o ar à força';
+    } else {
+      $('breathCircle').className = 'breath-circle exhale';
+      $('breathInstruction').textContent = 'Solte o ar';
+      $('breathSub').textContent = 'Lentamente, se confortável';
+    }
+  }
+  $('breathBtn').addEventListener('click', () => {
+    if (breathStartedAt) {
+      breathElapsedBefore = breathElapsed(); breathStartedAt = null; clearInterval(breathInterval); breathInterval = null;
+      $('breathBtn').textContent = '▶ Retomar'; $('breathCircle').className = 'breath-circle'; $('breathInstruction').textContent = 'Pausa'; $('breathSub').textContent = 'Respire naturalmente'; $('breathStatus').textContent = 'Pausado. Retome quando for confortável ou encerre o exercício.';
+    } else {
+      if (breathElapsedBefore >= BREATH_TOTAL) breathElapsedBefore = 0;
+      breathStartedAt = Date.now(); breathInterval = setInterval(renderBreath, 250);
+      $('breathBtn').textContent = 'Ⅱ Pausar';
+      $('breathStatus').textContent = breathMode === 'diaphragm'
+        ? 'Uma mão pode ficar no abdômen e outra no peito. Permita um movimento abdominal suave, sem tentar controlar cada respiração. Pare se aumentar o desconforto.'
+        : 'Como referência, inspire suavemente por cerca de 5 segundos e solte o ar por cerca de 5. A pausa é opcional. Adapte a contagem ao conforto e respire naturalmente se preferir.';
+      renderBreath();
+    }
+  });
+  $('breathResetBtn').addEventListener('click', () => {
+    clearInterval(breathInterval); breathInterval = null; breathStartedAt = null; breathElapsedBefore = 0;
+    pendingBreathPractice = '';
+    $('breathTimer').textContent = '05:00'; $('breathCircle').className = 'breath-circle'; $('breathInstruction').textContent = 'Vamos começar'; $('breathSub').textContent = 'No seu ritmo'; $('breathBtn').textContent = '▶ Iniciar exercício';
+    $('breathStatus').textContent = breathMode === 'diaphragm' ? 'Coloque uma mão no abdômen e outra no peito, se confortável. Respire suavemente e observe o movimento sem forçar.' : 'Como referência, inspire suavemente por cerca de 5 segundos e solte o ar por cerca de 5. A pausa é opcional. Adapte a contagem ao conforto.';
+  });
+
+  function prepareBreathing(mode, label) {
+    clearInterval(breathInterval); breathInterval = null; breathStartedAt = null; breathElapsedBefore = 0;
+    breathMode = mode; pendingBreathPractice = label || '';
+    $('breathTimer').textContent = '05:00'; $('breathCircle').className = 'breath-circle';
+    $('breathInstruction').textContent = 'Vamos começar'; $('breathSub').textContent = 'No seu ritmo'; $('breathBtn').textContent = '▶ Iniciar exercício';
+    $('breathStatus').textContent = mode === 'diaphragm'
+      ? 'Coloque uma mão no abdômen e outra no peito, se confortável. Respire suavemente e observe o movimento sem forçar.'
+      : 'Pratique sem pressa. Inspire e expire suavemente; não precisa controlar cada respiração.';
+    openScreen('acalmar'); $('breathCard').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+    showToast(label === 'Respiração preventiva' ? 'Quando estiver pronto, inicie a prática.' : 'Exercício preparado. Comece quando estiver pronto.');
+  }
+  $('preparePreventiveBtn').addEventListener('click', () => prepareBreathing('regular', 'Respiração preventiva'));
+  $('prepareDiaphragmBtn').addEventListener('click', () => prepareBreathing('diaphragm', 'Respiração diafragmática'));
+  $('practiceAnchor').addEventListener('change', () => {
+    data.settings.practiceAnchor = $('practiceAnchor').value; const saved = persist();
+    $('preventiveNote').textContent = `Lembrete escolhido: “${data.settings.practiceAnchor}”. O app não envia notificações; associe à rotina escolhida.`;
+    if (!saved) showToast('Escolha mantida apenas nesta sessão; armazenamento indisponível.');
+  });
+
+  function recordPractice(label, notify = true) {
+    data.practices.unshift({ id:makeId(), date:today(), createdAt:Date.now(), label, anchor:label === 'Respiração preventiva' ? (data.settings.practiceAnchor || '') : '' });
+    data.practices = data.practices.slice(0, 300); const saved = persist(); renderProgress();
+    if (notify) showToast(saved ? 'Prática registrada.' : 'Prática anotada apenas nesta sessão; armazenamento indisponível.');
+    return saved;
+  }
+  $('logRelaxBtn').addEventListener('click', () => recordPractice('Postura e relaxamento corporal'));
+  $('logGroundingBtn').addEventListener('click', () => recordPractice('Redirecionamento da atenção'));
+  $('logPauseBtn').addEventListener('click', () => recordPractice('Pausa temporária em ambiente estimulante'));
+  $('logColdBtn').addEventListener('click', () => recordPractice('Estímulo frio opcional'));
+  $('saveAerobicBtn').addEventListener('click', () => {
+    const minutes = Number($('aerobicMinutes').value);
+    if (!Number.isInteger(minutes) || minutes < 1 || minutes > 240) { showToast('Informe um tempo entre 1 e 240 minutos.'); $('aerobicMinutes').focus(); return; }
+    data.aerobic.unshift({ id:makeId(), date:today(), createdAt:Date.now(), type:$('aerobicType').value, minutes });
+    data.aerobic = data.aerobic.slice(0, 300); const saved = persist(); renderProgress();
+    showToast(saved ? 'Atividade física registrada.' : 'Atividade anotada apenas nesta sessão; armazenamento indisponível.');
+  });
+
+  // Preocupações: distinguir ação imediata de assunto a ser retomado depois.
+  function saveWorry(status) {
+    const text = $('worryInput').value.trim();
+    if (!text) { $('worryInput').focus(); showToast('Escreva uma frase sobre a preocupação.'); return; }
+    const entry = { id:makeId(), date:today(), createdAt:Date.now(), text, status };
+    data.worries.unshift(entry); data.worries = data.worries.slice(0, 100); const saved = persist();
+    const box = $('worryResult'); box.style.display = 'block';
+    if (status === 'action') {
+      box.innerHTML = '<strong>Transforme em um passo pequeno.</strong> A preocupação foi colocada no campo de ação da tela Hoje. Ajuste-a até virar uma tarefa concreta e segura.';
+      $('taskInput').value = `Primeiro passo: ${text}`; $('worryInput').value = ''; openScreen('hoje');
+      showToast(saved ? 'Preocupação convertida em um passo pequeno.' : 'Passo preparado; o registro não ficou salvo no aparelho.');
+      setTimeout(() => $('taskInput').focus({ preventScroll:true }), 120);
+    } else {
+      box.innerHTML = '<strong>Você pode retomar isso depois.</strong> Se for útil, anote um horário para pensar no assunto. Por agora, volte a uma atividade presente e manejável. Adiar não significa que a preocupação seja falsa ou irrelevante.';
+      $('worryInput').value = ''; showToast(saved ? 'Preocupação anotada para retomar depois.' : 'Preocupação anotada apenas nesta sessão.');
+    }
+  }
+  $('worryActBtn').addEventListener('click', () => saveWorry('action'));
+  $('worryLaterBtn').addEventListener('click', () => saveWorry('later'));
+
+  // Navegação por etapas do registro cognitivo, mantendo todos os campos salvos.
+  let currentThoughtStep = 0;
+  function showThoughtStep(step) {
+    currentThoughtStep = Math.max(0, Math.min(2, step));
+    document.querySelectorAll('[data-thought-step]').forEach(el => el.classList.toggle('active', Number(el.dataset.thoughtStep) === currentThoughtStep));
+    document.querySelectorAll('#thoughtStepProgress span').forEach((el,i)=>el.classList.toggle('on',i<=currentThoughtStep));
+    $('thoughtStepLabel').textContent = ['Etapa 1 de 3 · Situação e emoção','Etapa 2 de 3 · Examinar as evidências','Etapa 3 de 3 · Resposta equilibrada e próximo passo'][currentThoughtStep];
+    $('thoughtPrevBtn').disabled = currentThoughtStep === 0;
+    $('thoughtNextBtn').textContent = currentThoughtStep === 2 ? 'Voltar ao início' : 'Próxima etapa';
+  }
+  $('thoughtPrevBtn').addEventListener('click',()=>showThoughtStep(currentThoughtStep-1));
+  $('thoughtNextBtn').addEventListener('click',()=>showThoughtStep(currentThoughtStep===2?0:currentThoughtStep+1));
+  // Rascunho automático e retomável do registro cognitivo.
+  const THOUGHT_FIELDS = ['thoughtSituation','thoughtAuto','thoughtEmotion','thoughtIntensity','thoughtFor','thoughtAgainst','thoughtBalanced','thoughtNext'];
+  function collectThoughtDraft() { const obj={}; THOUGHT_FIELDS.forEach(id=>obj[id]=$(id).value); return obj; }
+  function restoreThoughtDraft() { const d=data.thoughtDraft||{}; THOUGHT_FIELDS.forEach(id=>{if(d[id]!==undefined)$(id).value=d[id];}); $('thoughtIntensityVal').textContent = `${$('thoughtIntensity').value}/100`; $('resumeThoughtBtn').hidden = !THOUGHT_FIELDS.some(id=>String(d[id]||'').trim()); }
+  function saveThoughtDraft(notify=false) { data.thoughtDraft=collectThoughtDraft(); const ok=persist(); $('thoughtDraftHint').textContent=ok?'Rascunho salvo neste navegador. Você pode voltar depois.':'Não foi possível persistir o rascunho neste navegador.'; $('resumeThoughtBtn').hidden = !THOUGHT_FIELDS.some(id=>String(data.thoughtDraft[id]||'').trim()); if(notify)showToast(ok?'Rascunho salvo.':'Não foi possível salvar o rascunho.'); }
+  THOUGHT_FIELDS.forEach(id=>$(id).addEventListener('input',()=>saveThoughtDraft(false)));
+  $('saveThoughtDraftBtn').addEventListener('click',()=>saveThoughtDraft(true));
+
+  // Registro de pensamento inspirado em formulários de TCC.
+  $('thoughtIntensity').addEventListener('input', () => { $('thoughtIntensityVal').textContent = `${$('thoughtIntensity').value}/100`; });
+  $('saveThoughtBtn').addEventListener('click', () => {
+    const situation = $('thoughtSituation').value.trim(); const automatic = $('thoughtAuto').value.trim(); const balanced = $('thoughtBalanced').value.trim();
+    if (!automatic) { $('thoughtAuto').focus(); showToast('Comece registrando o pensamento automático.'); return; }
+    if (!balanced) { $('thoughtBalanced').focus(); showToast('Escreva uma resposta mais equilibrada, mesmo que provisória.'); return; }
+    data.thoughts.unshift({ id:makeId(), date:today(), createdAt:Date.now(), situation, automatic, emotion:$('thoughtEmotion').value, intensity:Number($('thoughtIntensity').value), evidenceFor:$('thoughtFor').value.trim(), evidenceAgainst:$('thoughtAgainst').value.trim(), balanced, next:$('thoughtNext').value.trim() });
+    data.thoughts = data.thoughts.slice(0, 200); data.thoughtDraft = {}; const saved = persist();
+    ['thoughtSituation','thoughtAuto','thoughtFor','thoughtAgainst','thoughtBalanced','thoughtNext'].forEach(id => $(id).value = '');
+    $('thoughtIntensity').value = 70; $('thoughtIntensityVal').textContent = '70/100'; $('thoughtDraftHint').textContent='Registro salvo. Um novo rascunho pode ser iniciado quando quiser.'; $('resumeThoughtBtn').hidden=true; showThoughtStep(0);
+    renderThoughts(); showToast(saved ? 'Registro salvo neste navegador.' : 'Registro disponível apenas nesta sessão; armazenamento indisponível.');
+  });
+  function renderThoughts() {
+    $('thoughtCount').textContent = `${data.thoughts.length} ${data.thoughts.length === 1 ? 'registro' : 'registros'}`;
+    const list = $('thoughtHistory');
+    if (!data.thoughts.length) { list.innerHTML = '<div class="empty">Seus registros aparecerão aqui depois que você salvar o primeiro.</div>'; return; }
+    list.innerHTML = data.thoughts.slice(0,6).map(t => `<div class="list-item"><div class="list-item-top"><strong>${esc(t.emotion)} · ${esc(t.intensity)}/100</strong><time>${esc(formatDate(t.date))}</time></div><p><strong>Pensamento:</strong> ${esc(t.automatic)}</p><p><strong>Resposta equilibrada:</strong> ${esc(t.balanced)}</p>${t.next ? `<p><strong>Próximo passo:</strong> ${esc(t.next)}</p>` : ''}</div>`).join('');
+  }
+
+  function makeId() { return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,9)}`; }
+  function renderProgress() {
+    const days = [];
+    for (let offset = 6; offset >= 0; offset--) { const d = new Date(); d.setDate(d.getDate()-offset); const iso = localDate(d); days.push({ iso, checkin:data.checkins.find(c => c.date === iso) }); }
+    const records = days.map(d => d.checkin).filter(Boolean);
+    $('avgMood').textContent = records.length ? (records.reduce((s,c) => s + Number(c.mood || 0),0)/records.length).toFixed(1).replace('.',',') : '—';
+    $('avgAnxiety').textContent = records.length ? (records.reduce((s,c) => s + Number(c.anxiety || 0),0)/records.length).toFixed(1).replace('.',',') : '—';
+    $('weekCheckins').textContent = `${records.length}/7`;
+    $('weekActivities').textContent = data.activities.filter(a => a.date >= days[0].iso && a.date <= days[6].iso).length;
+    $('weekTechniques').textContent = data.practices.filter(p => p.date >= days[0].iso && p.date <= days[6].iso).length;
+    const weekAerobicMinutes = data.aerobic.filter(a => a.date >= days[0].iso && a.date <= days[6].iso).reduce((sum, a) => sum + Number(a.minutes || 0), 0);
+    $('weekAerobic').textContent = `${weekAerobicMinutes} min`;
+    $('weekChart').innerHTML = days.map(d => {
+      const mood = d.checkin ? Math.max(0, Math.min(5, Number(d.checkin.mood || 0))) : 0;
+      return `<div class="week-row"><span>${esc(formatDate(d.iso,{weekday:'short'}))}</span><div class="bar-track" aria-label="Ânimo ${d.checkin ? mood+'/5' : 'sem registro'}"><div class="bar-fill" style="width:${mood*20}%"></div></div><span>${d.checkin ? `${mood}/5` : '—'}</span></div>`;
+    }).join('');
+    $('activityCount').textContent = `${data.activities.length}`;
+    const activityList = $('activityHistory');
+    if (!data.activities.length) activityList.innerHTML = '<div class="empty">Suas ações registradas aparecerão aqui. O tamanho do passo não determina o seu valor.</div>';
+    else activityList.innerHTML = data.activities.slice(0,7).map(a => `<div class="list-item"><div class="list-item-top"><strong>${esc(a.task)}</strong><time>${esc(formatDate(a.date))}${a.legacyTime ? ' · '+esc(a.legacyTime) : ''}</time></div><p>Realização: ${esc(a.mastery)}/5 · Prazer: ${esc(a.pleasure)}/5</p></div>`).join('');
+    $('practiceCount').textContent = `${data.practices.length}`;
+    const practiceList = $('practiceHistory');
+    if (!data.practices.length && !data.aerobic.length) practiceList.innerHTML = '<div class="empty">As práticas de respiração, relaxamento, atenção e atividade física aparecerão aqui quando forem registradas.</div>';
+    else {
+      const records = [
+        ...data.practices.map(x => ({ date:x.date, createdAt:x.createdAt, label:x.label, detail:x.anchor ? `Rotina associada: ${x.anchor}` : '' })),
+        ...data.aerobic.map(x => ({ date:x.date, createdAt:x.createdAt, label:x.type, detail:`${x.minutes} minuto(s) de atividade aeróbica` }))
+      ].sort((a,b) => (b.createdAt || 0) - (a.createdAt || 0)).slice(0,8);
+      practiceList.innerHTML = records.map(x => `<div class="list-item"><div class="list-item-top"><strong>${esc(x.label)}</strong><time>${esc(formatDate(x.date))}</time></div>${x.detail ? `<p>${esc(x.detail)}</p>` : ''}</div>`).join('');
+    }
+  }
+
+  const PRACTICE_SUGGESTIONS = [
+    {id:'home-cup', context:'Casa e ambiente', name:'Depois de beber água, lavar e guardar o copo', trigger:'Depois de beber água'},
+    {id:'home-object', context:'Casa e ambiente', name:'Devolver um objeto ao lugar depois de usá-lo', trigger:'Depois de usar um objeto'},
+    {id:'home-small', context:'Casa e ambiente', name:'Resolver uma pequena bagunça se levar pouco tempo', trigger:'Ao perceber algo rápido de resolver'},
+    {id:'home-next', context:'Casa e ambiente', name:'Preparar o espaço para a próxima atividade', trigger:'Ao encerrar uma atividade'},
+    {id:'work-close', context:'Trabalho e estudos', name:'Ao encerrar, guardar o notebook e o essencial', trigger:'Ao encerrar o expediente'},
+    {id:'work-files', context:'Trabalho e estudos', name:'Fechar arquivos e guardar materiais que não serão usados', trigger:'Ao concluir uma tarefa'},
+    {id:'work-note', context:'Trabalho e estudos', name:'Anotar uma pendência para não precisar mantê-la na memória', trigger:'Quando não puder resolver agora'},
+    {id:'work-one', context:'Trabalho e estudos', name:'Encerrar uma atividade antes de começar outra, quando possível', trigger:'Na transição entre tarefas'},
+    {id:'care-anchor', context:'Autocuidado', name:'Associar um hábito saudável a uma rotina que já acontece', trigger:'Escolha um hábito existente'},
+    {id:'care-prepare', context:'Autocuidado', name:'Preparar com antecedência algo necessário para a rotina', trigger:'Na noite anterior ou antes de sair'},
+    {id:'care-pause', context:'Autocuidado', name:'Fazer uma pausa consciente entre atividades', trigger:'Ao trocar de atividade'},
+    {id:'care-tired', context:'Autocuidado', name:'Perceber sinais de cansaço e ajustar o ritmo, se possível', trigger:'Ao notar cansaço'},
+    {id:'routine-start', context:'Rotina e transições', name:'Criar um pequeno ritual para começar o dia', trigger:'Ao acordar'},
+    {id:'routine-end', context:'Rotina e transições', name:'Criar um pequeno ritual para encerrar o dia', trigger:'Antes de dormir'},
+    {id:'routine-morning', context:'Rotina e transições', name:'Preparar o necessário para a próxima manhã', trigger:'Ao encerrar o dia'},
+    {id:'routine-review', context:'Rotina e transições', name:'Fazer uma breve revisão do ambiente, sem obrigação', trigger:'Antes de dormir'}
+  ];
+  let editingCustomPracticeId = null;
+  function allPractices() { return [...PRACTICE_SUGGESTIONS, ...(data.customPractices || [])]; }
+  function beginEditPractice(id) { const p=allPractices().find(x=>x.id===id); if(!p)return; editingCustomPracticeId=p.custom?p.id:null; $('customPracticeName').value=p.name; $('customPracticeContext').value=p.context; $('customPracticeTrigger').value=p.trigger||''; $('addCustomPracticeBtn').textContent=p.custom?'Atualizar prática':'Salvar como prática personalizada'; $('cancelEditPracticeBtn').hidden=false; $('customPracticeName').focus(); $('customPracticeName').scrollIntoView({behavior:'smooth',block:'center'}); if(!p.custom)showToast('Adapte o exemplo e salve como uma prática sua.'); }
+  function cancelEditPractice() { editingCustomPracticeId=null; $('customPracticeName').value=''; $('customPracticeTrigger').value=''; $('addCustomPracticeBtn').textContent='Salvar prática'; $('cancelEditPracticeBtn').hidden=true; }
+  function practiceLogToday(id) { return (data.dailyPractices || []).some(x => x.practiceId === id && x.date === today()); }
+  function renderSuggestedPractices() {
+    const filter = $('practiceFilter')?.value || 'Todas';
+    const favorites = new Set((data.settings.practiceFavorites || []));
+    const arr = allPractices().filter(p => filter === 'Todas' || p.context === filter);
+    $('suggestedPractices').innerHTML = arr.map(p => {
+      const done = practiceLogToday(p.id), fav = favorites.has(p.id), custom = !!p.custom;
+      return `<div class="list-item"><div class="list-item-top"><strong>${esc(p.name)}</strong><button class="btn btn-plain btn-small" type="button" data-favorite-practice="${esc(p.id)}" aria-label="${fav?'Remover dos':'Adicionar aos'} favoritos">${fav?'★ Favorita':'☆ Favoritar'}</button></div><div class="practice-meta"><span class="mini-tag">${esc(p.context)}</span><span class="mini-tag">Gatilho: ${esc(p.trigger || 'A definir')}</span>${custom?'<span class="mini-tag">Personalizada</span>':''}</div><div class="practice-actions"><button class="btn ${done?'btn-plain':'btn-primary'} btn-small" type="button" data-log-practice="${esc(p.id)}">${done?'Realizada hoje':'Marcar como realizada'}</button><button class="btn btn-plain btn-small" type="button" data-edit-practice="${esc(p.id)}">${custom?'Editar':'Adaptar'}</button>${custom?`<button class="btn btn-plain btn-small" type="button" data-delete-practice="${esc(p.id)}">Remover</button>`:''}</div></div>`;
+    }).join('') || '<div class="empty">Nenhuma prática nesta categoria.</div>';
+    $('suggestedPractices').querySelectorAll('[data-favorite-practice]').forEach(b => b.addEventListener('click', () => { const id=b.dataset.favoritePractice; const f=new Set(data.settings.practiceFavorites||[]); f.has(id)?f.delete(id):f.add(id); data.settings.practiceFavorites=[...f]; persist(); renderSuggestedPractices(); renderMyPractices(); }));
+    $('suggestedPractices').querySelectorAll('[data-log-practice]').forEach(b => b.addEventListener('click', () => logDailyPractice(b.dataset.logPractice)));
+    $('suggestedPractices').querySelectorAll('[data-delete-practice]').forEach(b => b.addEventListener('click', () => deleteCustomPractice(b.dataset.deletePractice)));
+    $('suggestedPractices').querySelectorAll('[data-edit-practice]').forEach(b => b.addEventListener('click', () => beginEditPractice(b.dataset.editPractice)));
+  }
+  function renderMyPractices() {
+    const fav = new Set(data.settings.practiceFavorites || []);
+    const arr = allPractices().filter(p => fav.has(p.id) || p.custom);
+    $('myPractices').innerHTML = arr.length ? arr.map(p => `<div class="list-item"><div class="list-item-top"><strong>${esc(p.name)}</strong><span class="mini-tag">${p.custom?'Personalizada':'Favorita'}</span></div><p>${esc(p.context)} · Gatilho: ${esc(p.trigger || 'não definido')}</p><div class="practice-actions"><button class="btn btn-soft btn-small" type="button" data-log-practice="${esc(p.id)}">Registrar prática</button><button class="btn btn-plain btn-small" type="button" data-edit-practice="${esc(p.id)}">${p.custom?'Editar':'Adaptar'}</button>${p.custom?`<button class="btn btn-plain btn-small" type="button" data-delete-practice="${esc(p.id)}">Remover</button>`:''}</div></div>`).join('') : '<div class="empty">Suas favoritas e práticas personalizadas aparecerão aqui.</div>';
+    $('myPractices').querySelectorAll('[data-log-practice]').forEach(b=>b.addEventListener('click',()=>logDailyPractice(b.dataset.logPractice)));
+    $('myPractices').querySelectorAll('[data-delete-practice]').forEach(b=>b.addEventListener('click',()=>deleteCustomPractice(b.dataset.deletePractice)));
+    $('myPractices').querySelectorAll('[data-edit-practice]').forEach(b=>b.addEventListener('click',()=>beginEditPractice(b.dataset.editPractice)));
+  }
+  function renderDailyPracticeHistory() {
+    const arr=(data.dailyPractices||[]).slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,30);
+    $('dailyPracticeHistory').innerHTML=arr.length?arr.map(x=>`<div class="list-item"><div class="list-item-top"><strong>${esc(x.name)}</strong><time>${esc(formatDate(x.date))}</time></div><p>${esc(x.context)}${x.trigger?' · '+esc(x.trigger):''}</p></div>`).join(''):'<div class="empty">Nenhuma prática registrada ainda. Você pode experimentar uma quando fizer sentido.</div>';
+  }
+  function logDailyPractice(id) {
+    const p=allPractices().find(x=>x.id===id); if(!p)return;
+    if(practiceLogToday(id)){showToast('Esta prática já foi registrada hoje.');return;}
+    data.dailyPractices.unshift({id:makeId(),practiceId:id,name:p.name,context:p.context,trigger:p.trigger||'',date:today(),createdAt:Date.now()});
+    persist(); renderSuggestedPractices(); renderMyPractices(); renderDailyPracticeHistory(); renderProgress(); showToast('Prática registrada, sem obrigação de repetir amanhã.');
+  }
+  function addCustomPractice() {
+    const name=$('customPracticeName').value.trim(); if(!name){showToast('Escreva o nome da prática.');$('customPracticeName').focus();return;}
+    const item={name,context:$('customPracticeContext').value,trigger:$('customPracticeTrigger').value.trim(),custom:true};
+    if(editingCustomPracticeId) {
+      data.customPractices=(data.customPractices||[]).map(p=>p.id===editingCustomPracticeId?{...p,...item}:p);
+      showToast('Prática atualizada.');
+    } else {
+      data.customPractices.unshift({id:'custom-'+makeId(),...item});
+      showToast('Prática personalizada salva.');
+    }
+    cancelEditPractice(); persist(); renderSuggestedPractices(); renderMyPractices();
+  }
+  $('cancelEditPracticeBtn').addEventListener('click',cancelEditPractice);
+  function deleteCustomPractice(id) {
+    if(!window.confirm('Remover esta prática personalizada? Os registros anteriores serão mantidos.'))return;
+    if(editingCustomPracticeId===id)cancelEditPractice(); data.customPractices=(data.customPractices||[]).filter(p=>p.id!==id); data.settings.practiceFavorites=(data.settings.practiceFavorites||[]).filter(x=>x!==id); persist(); renderSuggestedPractices(); renderMyPractices(); showToast('Prática removida.');
+  }
+  $('practiceFilter').addEventListener('change',renderSuggestedPractices);
+  $('addCustomPracticeBtn').addEventListener('click',addCustomPractice);
+
+  $('saveWeeklyReflectionBtn').addEventListener('click',()=>{data.settings.weeklyReflection=$('weeklyReflection').value;const ok=persist();showToast(ok?'Reflexão semanal salva.':'Não foi possível salvar neste navegador.');});
+
+  function summaryText() {
+    let text = 'VETOR — RESUMO DOS ÚLTIMOS 7 DIAS\n';
+    const dates = []; for (let i=6;i>=0;i--) { const d = new Date(); d.setDate(d.getDate()-i); dates.push(localDate(d)); }
+    const checks = dates.map(date => data.checkins.find(c => c.date === date)).filter(Boolean);
+    text += `Check-ins: ${checks.length}/7 dias\n`;
+    if (checks.length) {
+      text += `Ânimo médio: ${(checks.reduce((s,c)=>s+Number(c.mood),0)/checks.length).toFixed(1)}/5\n`;
+      text += `Ansiedade média: ${(checks.reduce((s,c)=>s+Number(c.anxiety),0)/checks.length).toFixed(1)}/5\n`;
+      checks.forEach(c => text += `- ${formatDate(c.date,{day:'2-digit',month:'2-digit'})}: ânimo ${c.mood}/5; ansiedade ${c.anxiety}/5\n`);
+    }
+    text += '\nAÇÕES REGISTRADAS\n';
+    const acts = data.activities.slice(0,10); if (!acts.length) text += 'Nenhuma ação registrada.\n';
+    acts.forEach(a => text += `- ${formatDate(a.date,{day:'2-digit',month:'2-digit'})}: ${a.task} (realização ${a.mastery}/5; prazer ${a.pleasure}/5)\n`);
+    const practices = data.practices.filter(p => dates.includes(p.date));
+    const dailyEveryday = (data.dailyPractices || []).filter(p => dates.includes(p.date));
+    const aerobic = data.aerobic.filter(a => dates.includes(a.date));
+    text += `\nPRÁTICAS DE MANEJO\n${practices.length} prática(s) registrada(s) nos últimos 7 dias\n`;
+    practices.slice(0,10).forEach(p => text += `- ${formatDate(p.date,{day:'2-digit',month:'2-digit'})}: ${p.label}${p.anchor ? ` (rotina: ${p.anchor})` : ''}\n`);
+    text += `\nPRÁTICAS COTIDIANAS\n${dailyEveryday.length} prática(s) registrada(s) nos últimos 7 dias\n`;
+    dailyEveryday.slice(0,15).forEach(p => text += `- ${formatDate(p.date,{day:'2-digit',month:'2-digit'})}: ${p.name} (${p.context})\n`);
+    text += `\nATIVIDADE AERÓBICA\n${aerobic.reduce((sum,a)=>sum+Number(a.minutes||0),0)} minuto(s) nos últimos 7 dias\n`;
+    aerobic.slice(0,10).forEach(a => text += `- ${formatDate(a.date,{day:'2-digit',month:'2-digit'})}: ${a.type}, ${a.minutes} min\n`);
+    text += `\nRegistros de pensamento salvos: ${data.thoughts.length}\n\nEste resumo é uma ferramenta de autorreflexão, não uma avaliação clínica.`;
+    return text;
+  }
+  $('exportSummaryBtn').addEventListener('click', async () => { const ok = await copyText(summaryText()); showToast(ok ? 'Resumo copiado.' : 'Não foi possível copiar. Tente pelo navegador.'); });
+  $('backupBtn').addEventListener('click', () => {
+    try {
+      const blob = new Blob([JSON.stringify({ app:'Vetor TCC', version:4, exportedAt:new Date().toISOString(), data }, null, 2)], { type:'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `vetor-backup-${today()}.json`; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); showToast('Backup preparado para download.');
+    } catch (_) { showToast('Não foi possível gerar o backup neste navegador.'); }
+  });
+  $('restoreBackupBtn').addEventListener('click', async () => {
+    const file = $('restoreFileInput').files && $('restoreFileInput').files[0];
+    if (!file) { showToast('Selecione um arquivo de backup JSON.'); return; }
+    if (file.size > 5 * 1024 * 1024) { showToast('O arquivo é grande demais para restaurar com segurança.'); return; }
+    try {
+      const parsed = JSON.parse(await file.text());
+      const incoming = parsed && typeof parsed === 'object' ? (parsed.data && typeof parsed.data === 'object' ? parsed.data : parsed) : null;
+      if (!incoming || !Array.isArray(incoming.checkins) || !Array.isArray(incoming.activities) || !Array.isArray(incoming.thoughts)) {
+        showToast('O arquivo não parece ser um backup válido do Vetor.'); return;
+      }
+      if (!window.confirm('Restaurar esta cópia substituirá os dados atuais deste aplicativo neste navegador. Continue?')) return;
+      const base = defaults();
+      data = {
+        ...base, ...incoming,
+        checkins: incoming.checkins,
+        activities: incoming.activities,
+        thoughts: incoming.thoughts,
+        worries: Array.isArray(incoming.worries) ? incoming.worries : [],
+        practices: Array.isArray(incoming.practices) ? incoming.practices : [],
+        aerobic: Array.isArray(incoming.aerobic) ? incoming.aerobic : [],
+        customPractices: Array.isArray(incoming.customPractices) ? incoming.customPractices : [],
+        dailyPractices: Array.isArray(incoming.dailyPractices) ? incoming.dailyPractices : [],
+        thoughtDraft: incoming.thoughtDraft && typeof incoming.thoughtDraft === 'object' ? incoming.thoughtDraft : {},
+        habits: incoming.habits && typeof incoming.habits === 'object' ? incoming.habits : {},
+        settings: { ...base.settings, ...(incoming.settings || {}) }
+      };
+      const saved = persist(); $('restoreFileInput').value = '';
+      init();
+      showToast(saved ? 'Backup restaurado neste navegador.' : 'Dados carregados apenas nesta sessão; armazenamento indisponível.');
+    } catch (_) { showToast('Não foi possível ler este arquivo. Verifique se é um backup JSON válido.'); }
+  });
+  $('deleteDataBtn').addEventListener('click', () => {
+    const confirmation = window.prompt('Para apagar todos os registros deste app neste navegador, digite APAGAR.');
+    if (confirmation !== 'APAGAR') { showToast('Nenhum dado foi apagado.'); return; }
+    data = defaults();
+    try { localStorage.removeItem(STORE_KEY); localStorage.removeItem('vetor_ba'); localStorage.removeItem('vetor_checkins'); } catch (_) { storageAvailable = false; }
+    $('moodRange').value = 3; $('anxietyRange').value = 3; setRangeValue('moodRange','moodVal'); setRangeValue('anxietyRange','anxietyVal');
+    $('checkinSavedHint').textContent = 'Você pode atualizar o registro durante o dia.';
+    $('practiceAnchor').value = 'Ao acordar'; $('preventiveNote').textContent = 'Lembrete escolhido: “Ao acordar”. O app não envia notificações; associe à rotina escolhida.'; $('aerobicMinutes').value = 5; $('weeklyReflection').value='';
+    renderHabits(); renderThoughts(); renderProgress(); restoreThoughtDraft(); renderSuggestedPractices(); renderMyPractices(); renderDailyPracticeHistory(); showToast('Registros locais apagados.');
+  });
+
+  function init() {
+    setGreeting();
+    const existing = data.checkins.find(c => c.date === today());
+    if (existing) {
+      $('moodRange').value = existing.mood; $('anxietyRange').value = existing.anxiety;
+      $('checkinSavedHint').textContent = 'Já há um check-in para hoje. Salvar novamente atualizará os valores.';
+    }
+    setRangeValue('moodRange','moodVal'); setRangeValue('anxietyRange','anxietyVal'); setRangeValue('masteryRange','masteryVal'); setRangeValue('pleasureRange','pleasureVal');
+    $('practiceAnchor').value = data.settings.practiceAnchor || 'Ao acordar';
+    $('preventiveNote').textContent = `Lembrete escolhido: “${$('practiceAnchor').value}”. O app não envia notificações; associe à rotina escolhida.`;
+    renderHabits(); renderThoughts(); renderProgress(); renderActionTimer(); $('weeklyReflection').value=data.settings.weeklyReflection||''; restoreThoughtDraft(); renderSuggestedPractices(); renderMyPractices(); renderDailyPracticeHistory();
+    if (!storageAvailable) $('storageWarning').style.display = 'block';
+  }
+  data = loadData();
+  init();
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
+}
+</script>
+</body>
+</html>
