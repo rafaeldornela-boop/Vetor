@@ -1,0 +1,8 @@
+{
+  "name": "Vetor",
+  "description": "Autocuidado em pequenos passos — ativação comportamental, respiração controlada, registro de pensamentos e práticas cotidianas.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
