@@ -1,0 +1,28 @@
+# Node dependencies
+node_modules/
+
+# Environment files
+.env
+.env.local
+.dev.env.json
+.dev.pid
+
+# Production build output
+dist/
+build/
+
+# Bun binary lockfile
+bun.lock
+
+# Capacitor Android generated & compiled files (generated on build / cap sync)
+android/app/build/
+android/.gradle/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/capacitor-cordova-android-plugins/
+android/gradle/wrapper/gradle-wrapper.jar
+
+# System and editor files
+.DS_Store
+Thumbs.db

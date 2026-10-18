@@ -26,13 +26,14 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentScreen, onSelectScr
             className={`nav-btn ${isActive ? 'active' : ''}`}
             type="button"
             data-screen={item.id}
+            title={item.label}
             aria-current={isActive ? 'page' : undefined}
             onClick={() => onSelectScreen(item.id)}
           >
             <span className="nav-icon" aria-hidden="true">
               {item.icon}
             </span>
-            <span>{item.label}</span>
+            <span className="nav-label">{item.label}</span>
           </button>
         );
       })}

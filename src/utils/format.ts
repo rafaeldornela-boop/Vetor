@@ -56,9 +56,9 @@ export const copyText = async (text: string): Promise<boolean> => {
 export const generateSummaryText = (data: VetorData): string => {
   let text = 'VETOR — RESUMO DOS ÚLTIMOS 7 DIAS\n';
   const dates: string[] = [];
+  const baseNow = new Date();
   for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
+    const d = new Date(baseNow.getFullYear(), baseNow.getMonth(), baseNow.getDate() - i);
     dates.push(localDate(d));
   }
   const checks = dates.map(date => data.checkins.find(c => c.date === date)).filter(Boolean);

@@ -1,0 +1,11 @@
+[
+  {
+    "id": "sino-pausa-consciente",
+    "title": "Sino de pausa consciente",
+    "category": "Concentração e pausa",
+    "description": "Toque suave de sino harmônico para marcar o início de uma pausa consciente de foco ou respiração.",
+    "src": "/audio/exemplo-pausa-consciente.wav",
+    "duration": 4,
+    "format": "audio/wav"
+  }
+]

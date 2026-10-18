@@ -7,6 +7,8 @@ export interface Checkin {
   updatedAt?: number;
 }
 
+export type PracticeFeedback = 'helped' | 'partial' | 'not_helped';
+
 export interface Activity {
   id: string;
   date: string; // YYYY-MM-DD
@@ -16,6 +18,7 @@ export interface Activity {
   pleasure: number; // 1 - 5
   timerStarted?: number;
   legacyTime?: string;
+  feedback?: PracticeFeedback;
 }
 
 export interface Thought {
@@ -57,6 +60,7 @@ export interface Practice {
   createdAt: number;
   label: string;
   anchor?: string;
+  feedback?: PracticeFeedback;
 }
 
 export interface Aerobic {
@@ -72,6 +76,7 @@ export interface PracticeItem {
   context: string;
   name: string;
   trigger: string;
+  description?: string;
   custom?: boolean;
 }
 
@@ -81,6 +86,7 @@ export interface DailyPractice {
   name: string;
   context: string;
   trigger: string;
+  description?: string;
   date: string; // YYYY-MM-DD
   createdAt: number;
 }
@@ -89,6 +95,16 @@ export interface VetorSettings {
   practiceAnchor: string;
   weeklyReflection: string;
   practiceFavorites: string[];
+  theme?: 'light' | 'dark' | 'system';
+  reminderEnabled?: boolean;
+  reminderMode?: 'fixed' | 'random';
+  reminderTime?: string; // HH:mm (fixed mode)
+  reminderWindowStart?: string; // HH:mm (window start, e.g. 09:00)
+  reminderWindowEnd?: string; // HH:mm (window end, e.g. 21:00)
+  randomReminderTimeToday?: string; // HH:mm (chosen random time for today)
+  randomReminderDate?: string; // YYYY-MM-DD
+  reminderText?: string;
+  lastReminderDate?: string; // YYYY-MM-DD
 }
 
 export interface VetorData {
@@ -104,3 +120,21 @@ export interface VetorData {
   dailyPractices: DailyPractice[];
   settings: VetorSettings;
 }
+
+export type AudioCategory =
+  | 'Meditação guiada'
+  | 'Relaxamento corporal'
+  | 'Sons da natureza'
+  | 'Concentração e pausa'
+  | 'Desacelerar antes de dormir';
+
+export interface AudioTrack {
+  id: string;
+  title: string;
+  category: AudioCategory;
+  description: string;
+  src: string;
+  duration?: number; // Duração em segundos, somente quando verificada
+  format?: string;
+}
+
