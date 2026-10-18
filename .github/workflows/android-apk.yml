@@ -50,23 +50,24 @@ jobs:
       - name: Sincronizar Capacitor com Android
         run: npx cap sync android
 
-      - name: Verificar e restaurar Gradle Wrapper (gradle-wrapper.jar)
-        run: |
-          mkdir -p android/gradle/wrapper
-          if [ ! -f "android/gradle/wrapper/gradle-wrapper.jar" ]; then
-            echo "gradle-wrapper.jar ausente no git (ignorado por .gitignore). Gerando binário do wrapper com Gradle 8.14.3..."
-            mkdir -p /tmp/gradle-wrapper-bootstrap
-            gradle wrapper --project-dir /tmp/gradle-wrapper-bootstrap --gradle-version 8.14.3
-            cp /tmp/gradle-wrapper-bootstrap/gradle/wrapper/gradle-wrapper.jar android/gradle/wrapper/gradle-wrapper.jar
-          fi
-          chmod +x android/gradlew
-          ls -la android/gradle/wrapper/
-
       - name: Aceitar licenças do Android SDK (Compile SDK 36)
         run: |
           if [ -n "$ANDROID_HOME" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
             yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
           fi
+
+      - name: Verificar e restaurar Gradle Wrapper (gradle-wrapper.jar)
+        run: |
+          if [ ! -f "android/gradle/wrapper/gradle-wrapper.jar" ]; then
+            echo "gradle-wrapper.jar ausente no repositório (ignorado pelo .gitignore). Gerando Wrapper no projeto Android real com Gradle 8.14.3..."
+            gradle -p android wrapper --gradle-version 8.14.3 --no-daemon --stacktrace
+          fi
+          if [ ! -f "android/gradle/wrapper/gradle-wrapper.jar" ]; then
+            echo "Erro: android/gradle/wrapper/gradle-wrapper.jar não foi encontrado após a geração do Wrapper."
+            exit 1
+          fi
+          chmod +x android/gradlew
+          ls -lh android/gradle/wrapper/gradle-wrapper.jar
 
       - name: Compilar APK de depuração (assembleDebug)
         working-directory: android
